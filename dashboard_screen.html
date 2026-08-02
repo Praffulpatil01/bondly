@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Bondly Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f3effc",
+                    "tertiary": "#934900",
+                    "on-tertiary-fixed-variant": "#713700",
+                    "surface-container": "#f0ecf9",
+                    "surface-variant": "#e5e0ed",
+                    "on-primary-container": "#fffeff",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#312f39",
+                    "tertiary-fixed-dim": "#ffb785",
+                    "secondary-fixed-dim": "#c7bfff",
+                    "on-tertiary-container": "#fffeff",
+                    "on-primary-fixed": "#140067",
+                    "on-background": "#1b1b24",
+                    "primary-fixed": "#e4dfff",
+                    "error": "#ba1a1a",
+                    "secondary": "#5846c8",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#1b1b24",
+                    "secondary-fixed": "#e4dfff",
+                    "on-tertiary": "#ffffff",
+                    "inverse-primary": "#c5c0ff",
+                    "tertiary-container": "#b85d00",
+                    "surface": "#fcf8ff",
+                    "surface-container-highest": "#e5e0ed",
+                    "background": "#fcf8ff",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffdcc6",
+                    "on-surface-variant": "#474555",
+                    "surface-dim": "#dcd8e5",
+                    "surface-container-low": "#f6f2ff",
+                    "on-secondary-container": "#fffbff",
+                    "surface-tint": "#5543de",
+                    "primary-fixed-dim": "#c5c0ff",
+                    "surface-bright": "#fcf8ff",
+                    "outline": "#787586",
+                    "on-secondary-fixed": "#170065",
+                    "surface-container-high": "#eae6f3",
+                    "primary-container": "#6d5ef7",
+                    "primary": "#5442dd",
+                    "on-primary-fixed-variant": "#3c23c6",
+                    "on-secondary-fixed-variant": "#422db2",
+                    "on-tertiary-fixed": "#301400",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#7161e3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "xxl": "48px",
+                    "xs": "4px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px",
+                    "unit": "8px",
+                    "margin-desktop": "40px",
+                    "xl": "32px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "headline-xl": ["Outfit"],
+                    "headline-lg-mobile": ["Outfit"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Outfit"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-gutter h-16 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl z-50 shadow-[0_4px_20px_rgba(109,94,247,0.08)]">
+<div class="flex items-center gap-3">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed-dim">Bondly</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<main class="pt-20 pb-32 px-margin-mobile md:px-margin-desktop max-w-screen-xl mx-auto">
+<!-- Welcome Greeting -->
+<section class="mb-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">Hi, Alex! ✨</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Your connection circle is growing.</p>
+</section>
+<!-- Main Action Card (Find a new match) -->
+<section class="mb-xl">
+<div class="relative group cursor-pointer overflow-hidden bg-primary-container rounded-lg p-lg shadow-[0_12px_40px_rgba(109,94,247,0.25)] transition-all hover:scale-[1.02] active:scale-95">
+<!-- Abstract Background Ornament -->
+<div class="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div class="flex-1">
+<h2 class="font-headline-md text-headline-md text-on-primary-container mb-xs">Find a new match</h2>
+<p class="font-body-md text-body-md text-on-primary-container/80 max-w-sm">Discover someone new who shares your passions and vibes today.</p>
+</div>
+<div class="flex items-center justify-start md:justify-end">
+<div class="bg-surface-container-lowest text-primary p-md rounded-full shadow-lg flex items-center gap-2 font-label-md">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+<span>Start Exploring</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Friends Horizontal Scroll -->
+<section class="mb-xl">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Friends</h3>
+<button class="text-primary font-label-md hover:underline">View All</button>
+</div>
+<div class="flex overflow-x-auto gap-md no-scrollbar py-2 -mx-margin-mobile px-margin-mobile">
+<!-- Friend Item -->
+<div class="flex-shrink-0 flex flex-col items-center gap-sm group">
+<div class="relative w-16 h-16 rounded-full p-1 border-2 border-primary ring-offset-2 ring-transparent group-hover:scale-105 transition-transform">
+<img class="w-full h-full rounded-full object-cover" data-alt="A portrait of a cheerful person with warm lighting and a soft focus background, wearing stylish modern clothing. The aesthetic is clean, professional, and social-platform friendly with a soft-UI touch." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-mD6hIrCjuchlzuO-Vri__6RdxGBVb1N0p5MuqNRMzdPp5rUSDF9oq_7yZk2bV3KK8o8uurvVNVxh1SK_Vi7237wUwISp0Wn6VhkMK-8aUnmkibwn4OiUZ87oazqHJp8FYTXWVBS26VThE4NhdSc3OLnlkkic6YTTxTRfuayxKCsyhj699opvGIbamNdSmHcEPTCKx8vStbvAlhfrqa-ixrcSfYnjhjANcjBCb2XWLBrzdnnxM2cjyA"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jordan</span>
+</div>
+<!-- Friend Item -->
+<div class="flex-shrink-0 flex flex-col items-center gap-sm group">
+<div class="relative w-16 h-16 rounded-full p-1 border-2 border-primary/20 hover:border-primary transition-colors">
+<img class="w-full h-full rounded-full object-cover" data-alt="A vibrant and approachable portrait of a person in a minimalist urban setting. Soft daylight, high-quality photography, featuring a gentle smile and modern accessories. The color palette is neutral with soft primary accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvidTppc1MsxLH-TO4-o0WJKZzz5Y57ho1JanXQhVKEDBsohwI7S5wyS8jkK2MdejRwhfgy1SqePE03phjboX91WEXmLmnMW6lbt2nnBU45V2YbEY1kldcbaWl0py1pnh87jVlxHVitnJGJkpXu63if2mnP11gZwgPfx92itAQpnszzTWhfmL2d6Lt_s69sS5y1RFulBTZTHEjbJavP5aRtWi_CHuhSZv4Vffl21nJDltdfVYOHPG1nw"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Casey</span>
+</div>
+<!-- Friend Item -->
+<div class="flex-shrink-0 flex flex-col items-center gap-sm group">
+<div class="relative w-16 h-16 rounded-full p-1 border-2 border-primary/20 hover:border-primary transition-colors">
+<img class="w-full h-full rounded-full object-cover" data-alt="Close up portrait of a stylish individual with a warm expression. The lighting is soft and golden, characteristic of high-end social media profile pictures. The background is a clean, minimal interior with soft-UI colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAus-lrXhJzGDyeReVOGNFV2vexBjFR8hKPRjCE0suu0Ft0_kJYhndWgEiO5XgJL2ek500nq1Kc-zg7nOrbKhoK085L3I05N6-9H4_sS0Od8yYmskZfquEa-v8hmK8TObBvLo5UQ4F_crltu2e1FlAcjDf9gB-WEf_MSwSX7PX-SSJxusf9uUtB43frTmW2jqTT9lODK1n406kXo4M19UA_jXdQza_HjH-7nJzlz_9DoSaasUNmfpiJow"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Morgan</span>
+</div>
+<!-- Friend Item -->
+<div class="flex-shrink-0 flex flex-col items-center gap-sm group">
+<div class="relative w-16 h-16 rounded-full p-1 border-2 border-primary/20 hover:border-primary transition-colors">
+<img class="w-full h-full rounded-full object-cover" data-alt="Professional yet friendly headshot of a young person in a high-key lighting environment. Crisp details, soft shadows, and a neutral background that emphasizes the person's positive energy and modern style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBioxqShoa1atIuWE0cvbRbxEidWguedZ7v8IP3XtT15LJHBj8S6ukvxar_un8R5O_BljNELT2Q58pcfw2Y3DuUP-a3dkcCrkyK-pEMVrLu93CmzwTRhlKNYVHusPKH1Cx4O4XqZT1dLTZhWqsZ5yD--SZxn-d1fWYvNCwbSx-Uvyw1XCNh-hBkOgwWDARlG4ivQjbuvwtpFka-sXEFdgvq2F1sSDstvnKx3k42q9k1NQpM-bZKqHuHpw"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Riley</span>
+</div>
+<!-- Friend Item -->
+<div class="flex-shrink-0 flex flex-col items-center gap-sm group">
+<div class="relative w-16 h-16 rounded-full p-1 border-2 border-primary/20 hover:border-primary transition-colors">
+<img class="w-full h-full rounded-full object-cover" data-alt="An artistic and clean portrait of a person with a friendly gaze. Soft-focus elements and professional lighting highlight the friendly persona. Minimalist style with a focus on human connection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFxyMWX_anmX--SJi-VJPG3yUCrUg3YoToOsVykV-RVYKzCWesR4VRm8EmCVy3ax_medG-H8CzY5Fi2B7lPPx4mhyxxcrzt18fPcR9DD_YcDOxTcbKzLdDDL92zRbdDq6iZdndirCGKYP3ZXf_aeG04PDwe6DmkO_sR3TS_srHn4Iw0X8v7vJ36G7AQZUu4ZhlMGfLCfSKa62PL77aetVJNA2pJK8OoQO_cu3Y_cVNtj4pddBbMF3Cmg"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jamie</span>
+</div>
+</div>
+</section>
+<!-- Friend Requests Section -->
+<section class="mb-xl">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-md">Friend Requests</h3>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-md shadow-[0_4px_20px_rgba(109,94,247,0.04)]">
+<div class="flex items-center gap-md">
+<div class="w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A portrait of a person with a friendly expression in a bright, modern cafe setting. The lighting is soft and natural, emphasizing a sense of curiosity and connection. Clean aesthetic suitable for a modern social app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4qij9YZAvXim_0v8MfHHITbGvimKZjaFQbieEo7gf5Qet2zZ9OaM9U0E-XrQQHwN5232smnj1vZhUbOhTz8ayE6NjZS0obQ0FSYZdWqFyjxNfyWzs0MGhNkGi3sO2kbTL7vuwXmjqUcaUHLH0XRy8SVmmW8hGU6Wo_LR0siXKepu8GhpCvK4OBlWsS0lMuyYDCQa7TznoUY15ORlXEHu4Hwg1eVsShdXWrO0Xh2GnQ1DBDnkzShTqLw"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-label-md text-label-md text-on-surface truncate">Skylar Grey</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Wants to connect over "Art &amp; Design"</p>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="check">check</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Insights (Extra Content) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="bg-surface-container-high rounded-lg p-lg flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-primary mb-sm" data-icon="stars">stars</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Daily Tip</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Sharing a hobby increases match compatibility by 40%!</p>
+</div>
+<button class="mt-md font-label-md text-primary text-left">Update Profile</button>
+</div>
+<div class="bg-secondary-container rounded-lg p-lg text-on-secondary-container">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="bg-white/20 px-2 py-1 rounded-full text-label-sm">Active</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mt-sm">Social Streak</h4>
+<p class="font-body-sm text-on-secondary-container/80 mt-xs">You've connected with 5 people this week. Keep it up!</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full flex flex-col md:flex-row justify-between items-center px-margin-desktop space-y-4 md:space-y-0 py-12 bg-surface-container-lowest dark:bg-surface-container-low mb-20 md:mb-0">
+<span class="text-headline-sm font-headline-sm font-bold text-primary">Bondly</span>
+<p class="text-body-sm font-body-sm text-on-surface-variant">© 2024 Bondly. Stay curious, stay kind.</p>
+<div class="flex gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm font-body-sm" href="#">Safety</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm font-body-sm" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm font-body-sm" href="#">Guidelines</a>
+</div>
+</footer>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl z-50 rounded-t-lg shadow-[0_-4px_20px_rgba(109,94,247,0.08)]">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-secondary-container text-on-primary-container dark:text-on-secondary-container rounded-xl px-4 py-1 scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="text-label-sm font-label-sm mt-1">Home</span>
+</a>
+<!-- Friends -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-container-highest/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-label-sm font-label-sm mt-1">Friends</span>
+</a>
+<!-- Alerts -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-container-highest/30 rounded-xl transition-all" href="#">
+<div class="relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></div>
+</div>
+<span class="text-label-sm font-label-sm mt-1">Alerts</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-container-highest/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('button, a').forEach(elem => {
+            elem.addEventListener('click', function(e) {
+                // Haptic feedback logic could go here
+            });
+        });
+
+        // Horizontal scroll momentum tweak for better feel on mobile
+        const scrollContainer = document.querySelector('.no-scrollbar');
+        if(scrollContainer) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            scrollContainer.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - scrollContainer.offsetLeft;
+                scrollLeft = scrollContainer.scrollLeft;
+            });
+            scrollContainer.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+            scrollContainer.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+            scrollContainer.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - scrollContainer.offsetLeft;
+                const walk = (x - startX) * 2;
+                scrollContainer.scrollLeft = scrollLeft - walk;
+            });
+        }
+    </script>
+</body></html>

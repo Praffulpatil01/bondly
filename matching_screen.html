@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bondly - Finding Your Match</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f3effc",
+                    "tertiary": "#934900",
+                    "on-tertiary-fixed-variant": "#713700",
+                    "surface-container": "#f0ecf9",
+                    "surface-variant": "#e5e0ed",
+                    "on-primary-container": "#fffeff",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#312f39",
+                    "tertiary-fixed-dim": "#ffb785",
+                    "secondary-fixed-dim": "#c7bfff",
+                    "on-tertiary-container": "#fffeff",
+                    "on-primary-fixed": "#140067",
+                    "on-background": "#1b1b24",
+                    "primary-fixed": "#e4dfff",
+                    "error": "#ba1a1a",
+                    "secondary": "#5846c8",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#1b1b24",
+                    "secondary-fixed": "#e4dfff",
+                    "on-tertiary": "#ffffff",
+                    "inverse-primary": "#c5c0ff",
+                    "tertiary-container": "#b85d00",
+                    "surface": "#fcf8ff",
+                    "surface-container-highest": "#e5e0ed",
+                    "background": "#fcf8ff",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffdcc6",
+                    "on-surface-variant": "#474555",
+                    "surface-dim": "#dcd8e5",
+                    "surface-container-low": "#f6f2ff",
+                    "on-secondary-container": "#fffbff",
+                    "surface-tint": "#5543de",
+                    "primary-fixed-dim": "#c5c0ff",
+                    "surface-bright": "#fcf8ff",
+                    "outline": "#787586",
+                    "on-secondary-fixed": "#170065",
+                    "surface-container-high": "#eae6f3",
+                    "primary-container": "#6d5ef7",
+                    "primary": "#5442dd",
+                    "on-primary-fixed-variant": "#3c23c6",
+                    "on-tertiary-fixed": "#301400",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#7161e3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "xxl": "48px",
+                    "xs": "4px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px",
+                    "unit": "8px",
+                    "margin-desktop": "40px",
+                    "xl": "32px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "headline-xl": ["Outfit"],
+                    "headline-lg-mobile": ["Outfit"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Outfit"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); opacity: 0; }
+            50% { opacity: 0.2; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .pulse-layer {
+            animation: pulse-ring 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        .pulse-layer-delayed {
+            animation: pulse-ring 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) 1.5s infinite;
+        }
+        .floating-avatar {
+            animation: float 6s ease-in-out infinite;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden min-h-screen flex flex-col">
+<!-- Top AppBar - Following Shared Components JSON -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-gutter h-16 bg-surface/80 backdrop-blur-xl z-50 shadow-[0_4px_20px_rgba(109,94,247,0.08)]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Bondly</h1>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
+</div>
+</header>
+<!-- Main Content: Matching State -->
+<main class="flex-grow flex flex-col items-center justify-center relative px-margin-mobile">
+<!-- Animated Background Decoration (Subtle Stars) -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-1/4 left-1/4 text-primary/20 opacity-40 animate-pulse">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div class="absolute top-1/3 right-1/4 text-secondary/30 opacity-40 animate-bounce" style="animation-duration: 4s;">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="absolute bottom-1/4 right-1/3 text-primary/20 opacity-40 animate-pulse" style="animation-delay: 1s;">
+<span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<!-- Pulse & Avatar Container -->
+<div class="relative flex items-center justify-center w-64 h-64 mb-12">
+<!-- Pulse Rings -->
+<div class="absolute pulse-layer w-full h-full bg-primary-container rounded-full"></div>
+<div class="absolute pulse-layer-delayed w-full h-full bg-primary-container rounded-full"></div>
+<!-- Central Avatar Illustration -->
+<div class="relative z-10 floating-avatar w-48 h-48 bg-surface-container-lowest rounded-full border-4 border-surface shadow-[0_12px_40px_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden">
+<img class="w-40 h-40 object-cover" data-alt="A stylized, cute 3D character illustration of a friendly digital companion with large expressive eyes and a soft pastel purple color scheme. The character is floating in a minimalist, bright, high-key studio setting with soft directional lighting that emphasizes its rounded, pill-like shapes. The aesthetic is clean, modern, and high-end SaaS style, using Bondly's signature primary color of #6D5EF7 as subtle accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVHBK2M5SqTZfxsT4vhMhT2u2ytWpOBv732AwFGdPilrFlz8eoK3huAum1DIY3z939IvtNDn0ZnyQK7wf7M4tWqcPST-DiTKBhl4qofTFX_kR_hubmHqA3Zrc-IvcNkwDTKINrVSMNbrCiVRnqGLSLZZqmNcYGpIe6qgXxOmliQSLFPsGxtzhGIDvXhwL-7kLeLbv-NycpD15r392Wvdt8sH5fUow8RG9e8xVHBl8vO1U4jL9keSTtqw"/>
+</div>
+<!-- Floating Micro-Elements around the avatar -->
+<div class="absolute -top-4 -right-2 bg-white p-2 rounded-full shadow-lg border border-surface-variant flex items-center justify-center animate-bounce">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="search">search</span>
+</div>
+</div>
+<!-- Text Messaging -->
+<div class="text-center max-w-xs space-y-3 z-10">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-on-surface tracking-tight">Finding someone for you...</h2>
+<p class="text-body-md font-body-md text-on-surface-variant/80">This usually takes a few seconds.</p>
+</div>
+<!-- Status Indicator (Typing Dots Style) -->
+<div class="flex gap-2 mt-8">
+<div class="w-2.5 h-2.5 rounded-full bg-primary animate-bounce" style="animation-delay: 0s;"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-primary animate-bounce" style="animation-delay: 0.2s;"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-primary animate-bounce" style="animation-delay: 0.4s;"></div>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<footer class="w-full pb-12 px-margin-mobile flex flex-col items-center">
+<button class="w-full max-w-sm h-14 rounded-full border-2 border-primary/20 text-primary font-label-md hover:bg-primary/5 transition-all active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="close">close</span>
+            Cancel
+        </button>
+</footer>
+<!-- Script for Micro-Interactions -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simulated progress or random status changes
+            const subtext = document.querySelector('p.text-on-surface-variant');
+            const messages = [
+                'Checking profiles near you...',
+                'Matching interests and vibes...',
+                'Almost there...',
+                'Finalizing your connection...'
+            ];
+            let index = 0;
+
+            setInterval(() => {
+                index = (index + 1) % messages.length;
+                subtext.style.opacity = '0';
+                setTimeout(() => {
+                    subtext.textContent = messages[index];
+                    subtext.style.opacity = '1';
+                }, 300);
+            }, 4000);
+            
+            // Apply transitions
+            subtext.style.transition = 'opacity 0.3s ease-in-out';
+        });
+    </script>
+</body></html>

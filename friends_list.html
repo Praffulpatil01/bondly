@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Bondly - Friends</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-pill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E5E0ED; border-radius: 10px; }
+        
+        .swipe-container {
+            touch-action: pan-y;
+            position: relative;
+            overflow: hidden;
+        }
+        .swipe-content {
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: white;
+            z-index: 10;
+        }
+        .swipe-actions {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 0;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "inverse-on-surface": "#f3effc",
+                "tertiary": "#934900",
+                "on-tertiary-fixed-variant": "#713700",
+                "surface-container": "#f0ecf9",
+                "surface-variant": "#e5e0ed",
+                "on-primary-container": "#fffeff",
+                "on-secondary": "#ffffff",
+                "on-primary": "#ffffff",
+                "inverse-surface": "#312f39",
+                "tertiary-fixed-dim": "#ffb785",
+                "secondary-fixed-dim": "#c7bfff",
+                "on-tertiary-container": "#fffeff",
+                "on-primary-fixed": "#140067",
+                "on-background": "#1b1b24",
+                "primary-fixed": "#e4dfff",
+                "error": "#ba1a1a",
+                "secondary": "#5846c8",
+                "on-error-container": "#93000a",
+                "on-surface": "#1b1b24",
+                "secondary-fixed": "#e4dfff",
+                "on-tertiary": "#ffffff",
+                "inverse-primary": "#c5c0ff",
+                "tertiary-container": "#b85d00",
+                "surface": "#fcf8ff",
+                "surface-container-highest": "#e5e0ed",
+                "background": "#fcf8ff",
+                "on-error": "#ffffff",
+                "tertiary-fixed": "#ffdcc6",
+                "on-surface-variant": "#474555",
+                "surface-dim": "#dcd8e5",
+                "surface-container-low": "#f6f2ff",
+                "on-secondary-container": "#fffbff",
+                "surface-tint": "#5543de",
+                "primary-fixed-dim": "#c5c0ff",
+                "surface-bright": "#fcf8ff",
+                "outline": "#787586",
+                "on-secondary-fixed": "#170065",
+                "surface-container-high": "#eae6f3",
+                "primary-container": "#6d5ef7",
+                "primary": "#5442dd",
+                "on-primary-fixed-variant": "#3c23c6",
+                "outline-variant": "#c8c4d7",
+                "on-secondary-fixed-variant": "#422db2",
+                "on-tertiary-fixed": "#301400",
+                "surface-container-lowest": "#ffffff",
+                "error-container": "#ffdad6",
+                "secondary-container": "#7161e3"
+              },
+              "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "sm": "8px",
+                "xxl": "48px",
+                "xs": "4px",
+                "lg": "24px",
+                "gutter": "16px",
+                "margin-mobile": "20px",
+                "unit": "8px",
+                "margin-desktop": "40px",
+                "xl": "32px",
+                "md": "16px"
+              },
+              "fontFamily": {
+                "body-md": ["Inter"],
+                "body-lg": ["Inter"],
+                "headline-sm": ["Outfit"],
+                "headline-md": ["Outfit"],
+                "headline-xl": ["Outfit"],
+                "headline-lg-mobile": ["Outfit"],
+                "body-sm": ["Inter"],
+                "headline-lg": ["Outfit"],
+                "label-sm": ["Inter"],
+                "label-md": ["Inter"]
+              },
+              "fontSize": {
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen pb-24">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-gutter h-16 bg-surface/80 backdrop-blur-xl z-50 shadow-[0_4px_20px_rgba(109,94,247,0.08)]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:opacity-80 active:scale-95 transition-all">arrow_back</span>
+<h1 class="text-headline-md font-bold text-primary">Bondly</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:opacity-80 active:scale-95 transition-all cursor-pointer">settings</span>
+</div>
+</header>
+<main class="pt-20 px-margin-mobile max-w-2xl mx-auto">
+<!-- Search Section -->
+<div class="mb-lg relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest border border-outline-variant rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-body-md" placeholder="Search friends..." type="text"/>
+</div>
+<!-- Tab Navigation -->
+<div class="flex p-1 bg-surface-container-low rounded-xl mb-xl">
+<button class="flex-1 py-2 text-label-md font-semibold transition-all rounded-lg bg-surface-container-highest text-primary shadow-sm" id="tab-online" onclick="switchTab('online')">
+                Online
+            </button>
+<button class="flex-1 py-2 text-label-md font-semibold transition-all rounded-lg text-on-surface-variant hover:bg-surface-variant/30" id="tab-all" onclick="switchTab('all')">
+                All
+            </button>
+</div>
+<!-- Friends List -->
+<div class="space-y-4" id="friends-list">
+<!-- Friend Card 1 -->
+<div class="swipe-container group">
+<div class="swipe-actions px-4 gap-2 bg-error-container rounded-2xl">
+<button class="p-4 text-on-error-container flex flex-col items-center">
+<span class="material-symbols-outlined">block</span>
+<span class="text-[10px] font-bold">BLOCK</span>
+</button>
+<button class="p-4 text-on-error-container flex flex-col items-center">
+<span class="material-symbols-outlined">delete</span>
+<span class="text-[10px] font-bold">REMOVE</span>
+</button>
+</div>
+<div class="swipe-content p-4 flex items-center gap-4 border border-outline-variant rounded-2xl shadow-[0_4px_20px_rgba(109,94,247,0.04)] cursor-pointer hover:border-primary/20 transition-colors" onclick="this.classList.toggle('active')">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-high border-2 border-white">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young woman with a warm, friendly expression, set against a soft bokeh background of a modern urban cafe. She is wearing stylish round glasses and a lavender sweater that matches the Bondly color palette. The lighting is soft and natural, emphasizing a professional yet approachable aesthetic for a high-end social networking application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWMQ3V72vT1DPxiG5bHrlWqlSbx8uNJMK8vo4vIrdSJTOO183pa0n9_30N3YaES4-cxFZyPjiBsntFJUuSEazULAVL28TPYzw3m9uGkM_psADdnRgsFP-dJ2Ieb3fJBgltP9WuuMcJKZGuhvEdZsQiimRRZmaTi9QAsjg7l7iO11XJ1y7BURz3xXhsGWl1fQhuD5YMl9-xGA6ASxnsjd6jqiPk2qNb4_ucT8MTAOjCOSWBAlOXPpsn5Q"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-headline-sm text-on-surface truncate">Sarah Jenkins</h3>
+<p class="text-body-sm text-on-surface-variant truncate">That sounds like a great idea!</p>
+</div>
+<div class="text-right">
+<span class="text-label-sm text-outline">2m ago</span>
+</div>
+</div>
+</div>
+<!-- Friend Card 2 -->
+<div class="swipe-container">
+<div class="swipe-actions px-4 gap-2 bg-error-container rounded-2xl">
+<button class="p-4 text-on-error-container flex flex-col items-center">
+<span class="material-symbols-outlined">delete</span>
+<span class="text-[10px] font-bold">REMOVE</span>
+</button>
+</div>
+<div class="swipe-content p-4 flex items-center gap-4 border border-outline-variant rounded-2xl shadow-[0_4px_20px_rgba(109,94,247,0.04)] cursor-pointer">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-high border-2 border-white">
+<img class="w-full h-full object-cover" data-alt="A close-up portrait of a cheerful person with short dark hair and a bright smile, captured in high-key morning light. The background is a clean, minimalist interior with subtle plants. The image has a soft, premium feel with vibrant colors that align with a sophisticated SaaS platform for social connection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpOkQ7VT2MKy4aUolmLriCX5GdwgdotNaTTyNi33jbeq9eGRKm5bq-1c3xyT9Ees8o_GzPWDqu350qaaKRVtjh-IdBLBPuRx1ViChqVAQZaOASCbQrMlnj5JkzvCpk8AxJcDyRhpgVMPmjdIYEGRw6qfBujo3JK4kresM0Wt9aALJnESlqdkrLiptgqQU89Jgs83JJIy3Z8bdaka4oLHH5eRcCf7atww1XGdyHKU2vz76E1Jgkdwp9UQ"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-headline-sm text-on-surface truncate">Alex Rivera</h3>
+<p class="text-body-sm text-primary font-medium truncate">Typing...</p>
+</div>
+<div class="text-right">
+<span class="text-label-sm text-outline">Just now</span>
+</div>
+</div>
+</div>
+<!-- Friend Card 3 -->
+<div class="swipe-container">
+<div class="swipe-content p-4 flex items-center gap-4 border border-outline-variant rounded-2xl shadow-[0_4px_20px_rgba(109,94,247,0.04)] cursor-pointer">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-high border-2 border-white grayscale opacity-70">
+<img class="w-full h-full object-cover" data-alt="A creative professional in a bright studio environment, wearing a minimalist white shirt. The person has a kind and focused look. The lighting is diffused and professional, creating a clean, high-end profile image that fits perfectly within a modern, secure social application's friends list." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuO-aD7bOi9-eFDmSp45TS6a1ZWtEc8W8Y1hmwlJW5iENYUDbbEaWkTOAu-HQtbJmaCR1mMCITyoUAgXw_3zqwvZYyrIeLflblLD3Upu7OIUoEN7yNdIbqg3W2vJHY0YgmI9hirhqpnRmJV1nsm0XN5jgDnfsVdD4oAiGB1NMEJbDfrL6_r_bKvHii9MTWI2e6dwJJilfMsQk7hG0ZIg6XnFc-GHLBaR3QL57OjrC4v0PQcdi8lNrq4w"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-headline-sm text-on-surface truncate">Jamie Chen</h3>
+<p class="text-body-sm text-on-surface-variant truncate">See you at 8:00?</p>
+</div>
+<div class="text-right">
+<span class="text-label-sm text-outline">1h ago</span>
+</div>
+</div>
+</div>
+<!-- Friend Card 4 -->
+<div class="swipe-container">
+<div class="swipe-content p-4 flex items-center gap-4 border border-outline-variant rounded-2xl shadow-[0_4px_20px_rgba(109,94,247,0.04)] cursor-pointer">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-high border-2 border-white">
+<img class="w-full h-full object-cover" data-alt="Portrait of a person with colorful accessories and a friendly, open expression. The aesthetic is clean and modern, with soft lighting that enhances the skin tones and fabric textures. This high-quality image represents the diverse and vibrant community of a high-end social connection platform called Bondly." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFUA3OVrVymAWzqTBfrkrAnvjPwWma1RaBVv26CFVp5cuFjFYhbA3pUXk1aCs0hR-QAqOPjTSrvPCbaRXZT6AxIPeTbd8hwpiwARI_wtae6-HDiXFS1vGo9Gd3uwjR7dR9U6De8VaIK18FYw8ZFMYGsKmqEdCAUaTIyXHZp5cV47uZBVEtZWuOMH8q__emyQ9esCku32lCvWGnMpwc6EU1nxDg13epL2oEx4VqM7n_fsGtfnVYdwHRqQ"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-headline-sm text-on-surface truncate">Morgan Taylor</h3>
+<p class="text-body-sm text-on-surface-variant truncate">Shared a photo</p>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<span class="text-label-sm text-outline">4h ago</span>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Anchor -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-surface/80 backdrop-blur-xl z-50 rounded-t-lg shadow-[0_-4px_20px_rgba(109,94,247,0.08)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-variant/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-label-sm font-label-sm">Home</span>
+</a>
+<!-- Active Item: Friends -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined active-pill" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-label-sm font-label-sm">Friends</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-variant/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="text-label-sm font-label-sm">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-variant/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        function switchTab(tab) {
+            const onlineBtn = document.getElementById('tab-online');
+            const allBtn = document.getElementById('tab-all');
+            
+            if (tab === 'online') {
+                onlineBtn.classList.add('bg-surface-container-highest', 'text-primary', 'shadow-sm');
+                onlineBtn.classList.remove('text-on-surface-variant', 'hover:bg-surface-variant/30');
+                allBtn.classList.remove('bg-surface-container-highest', 'text-primary', 'shadow-sm');
+                allBtn.classList.add('text-on-surface-variant', 'hover:bg-surface-variant/30');
+            } else {
+                allBtn.classList.add('bg-surface-container-highest', 'text-primary', 'shadow-sm');
+                allBtn.classList.remove('text-on-surface-variant', 'hover:bg-surface-variant/30');
+                onlineBtn.classList.remove('bg-surface-container-highest', 'text-primary', 'shadow-sm');
+                onlineBtn.classList.add('text-on-surface-variant', 'hover:bg-surface-variant/30');
+            }
+        }
+
+        // Simple touch swipe simulation for interactive demo
+        let startX = 0;
+        let currentX = 0;
+        let activeSwipe = null;
+
+        document.querySelectorAll('.swipe-container').forEach(container => {
+            const content = container.querySelector('.swipe-content');
+            
+            content.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                activeSwipe = content;
+            });
+
+            content.addEventListener('touchmove', (e) => {
+                if (!activeSwipe) return;
+                currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+                if (diff < 0 && diff > -120) {
+                    content.style.transform = `translateX(${diff}px)`;
+                }
+            });
+
+            content.addEventListener('touchend', (e) => {
+                if (!activeSwipe) return;
+                const diff = currentX - startX;
+                if (diff < -60) {
+                    content.style.transform = 'translateX(-120px)';
+                } else {
+                    content.style.transform = 'translateX(0px)';
+                }
+                activeSwipe = null;
+            });
+        });
+
+        // Click to open chat micro-interaction
+        document.querySelectorAll('.swipe-content').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = (card.style.transform === 'translateX(-120px)') ? 'translateX(-120px)' : 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = (card.style.transform === 'translateX(-120px)') ? 'translateX(-120px)' : 'scale(1)';
+            });
+        });
+    </script>
+</body></html>
