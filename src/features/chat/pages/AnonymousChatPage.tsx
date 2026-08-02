@@ -13,7 +13,9 @@ import { FriendRequestModal } from '../components/FriendRequestModal';
 
 // Service & Types
 import { ChatService, type ChatMessage } from '../services/chat.service';
-import { auth } from '@/config/firebase';
+import { FriendsService } from '@/features/friends/services/friends.service';
+import { auth, db } from '@/config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
 
 export const AnonymousChatPage = () => {
@@ -24,14 +26,30 @@ export const AnonymousChatPage = () => {
   
   // Friend Request State
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [requestStatus, setRequestStatus] = React.useState<'idle' | 'sending' | 'sent' | 'accepted' | 'declined'>('idle');
+  const [requestStatus, setRequestStatus] = React.useState<'idle' | 'sending' | 'sent' | 'received' | 'accepted' | 'declined'>('idle');
   const [requestId, setRequestId] = React.useState<string | null>(null);
+  const [incomingRequestId, setIncomingRequestId] = React.useState<string | null>(null);
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const chatId = location.state?.chatId || 'mock-chat-123';
   const myUid = auth.currentUser?.uid || 'demo-user-123';
-  // In a real app we'd fetch the other participant's ID from the chat document
-  const theirUid = 'anon-user-456'; 
+  const [theirUid, setTheirUid] = React.useState<string | null>(null);
+
+  // Fetch the other user's ID
+  React.useEffect(() => {
+    if (chatId === 'mock-chat-123') return;
+    const fetchChatDetails = async () => {
+      const chatDoc = await getDoc(doc(db, 'chats', chatId));
+      if (chatDoc.exists()) {
+        const data = chatDoc.data();
+        if (data.participants && Array.isArray(data.participants)) {
+          const otherId = data.participants.find((id: string) => id !== myUid);
+          if (otherId) setTheirUid(otherId);
+        }
+      }
+    };
+    fetchChatDetails();
+  }, [chatId, myUid]);
 
   // Check auth
   React.useEffect(() => {
@@ -105,7 +123,7 @@ export const AnonymousChatPage = () => {
     await ChatService.sendMessage(chatId, myUid, text);
   };
 
-  // Listen to friend request status changes if we have a requestId
+  // Listen to outbound friend request status changes
   React.useEffect(() => {
     if (!requestId) return;
     const unsubscribe = ChatService.subscribeToFriendRequest(requestId, (status) => {
@@ -118,7 +136,27 @@ export const AnonymousChatPage = () => {
     return () => unsubscribe();
   }, [requestId]);
 
+  // Listen for incoming friend requests
+  React.useEffect(() => {
+    const unsubscribe = ChatService.subscribeToIncomingRequest(myUid, chatId, (request) => {
+      if (request) {
+        if (request.status === 'pending') {
+          setIncomingRequestId(request.id);
+          setRequestStatus('received');
+          setIsModalOpen(true);
+        } else if (request.status === 'accepted' || request.status === 'declined') {
+          setRequestStatus(request.status);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [chatId, myUid]);
+
   const handleSendFriendRequest = async () => {
+    if (!theirUid) {
+      toast.error('Cannot send request at this time.');
+      return;
+    }
     setRequestStatus('sending');
     try {
       const request = await ChatService.sendFriendRequest(myUid, theirUid, chatId);
@@ -129,6 +167,16 @@ export const AnonymousChatPage = () => {
       setRequestStatus('idle');
       toast.error('Failed to send request');
     }
+  };
+
+  const handleAcceptRequest = async () => {
+    if (!incomingRequestId || !theirUid) return;
+    await FriendsService.acceptFriendRequest(incomingRequestId, theirUid, myUid);
+  };
+
+  const handleDeclineRequest = async () => {
+    if (!incomingRequestId) return;
+    await FriendsService.declineFriendRequest(incomingRequestId);
   };
 
   const handleLeaveChat = () => {
@@ -231,6 +279,8 @@ export const AnonymousChatPage = () => {
         status={requestStatus}
         onClose={() => setIsModalOpen(false)}
         onSendRequest={handleSendFriendRequest}
+        onAcceptRequest={handleAcceptRequest}
+        onDeclineRequest={handleDeclineRequest}
         onContinueChatting={() => {
           setIsModalOpen(false);
           // In real implementation, this might redirect to permanent chat view

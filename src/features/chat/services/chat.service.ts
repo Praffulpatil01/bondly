@@ -6,7 +6,9 @@ import {
   updateDoc, 
   onSnapshot, 
   query, 
+  where,
   orderBy, 
+  getDocs,
   serverTimestamp 
 } from 'firebase/firestore';
 import { NotificationService } from '@/features/notifications/services/notification.service';
@@ -98,14 +100,17 @@ class ChatServiceImpl {
   async sendFriendRequest(fromUid: string, toUid: string, chatId?: string): Promise<FriendRequest> {
     const requestsRef = collection(db, 'friend_requests');
     const requestData = {
-      fromUid,
-      toUid,
+      fromUid, // legacy
+      toUid,   // legacy
+      senderId: fromUid,
+      receiverId: toUid,
+      senderName: 'Anonymous', // Can be updated if needed
       chatId: chatId || null,
       status: 'pending',
       timestamp: Date.now(),
-      createdAt: serverTimestamp()
+      createdAt: Date.now()
     };
-    const docRef = await addDoc(requestsRef, requestData);
+    const docRef = await addDoc(requestsRef, { ...requestData, serverCreatedAt: serverTimestamp() });
     
     // Auto-create notification for the receiver
     try {
@@ -124,7 +129,7 @@ class ChatServiceImpl {
       console.error('Failed to create notification', e);
     }
     
-    return { id: docRef.id, ...requestData } as FriendRequest;
+    return { id: docRef.id, ...requestData } as any;
   }
 
   // Subscribe to friend request status
@@ -139,11 +144,56 @@ class ChatServiceImpl {
     });
   }
 
+  // Subscribe to incoming friend request for a specific chat
+  subscribeToIncomingRequest(
+    toUid: string,
+    chatId: string,
+    callback: (request: any | null) => void
+  ) {
+    const q = query(
+      collection(db, 'friend_requests'),
+      where('receiverId', '==', toUid),
+      where('chatId', '==', chatId)
+    );
+    return onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const docSnap = snapshot.docs[0];
+        callback({ id: docSnap.id, ...docSnap.data() });
+      } else {
+        // Fallback for older requests using toUid
+        const q2 = query(
+          collection(db, 'friend_requests'),
+          where('toUid', '==', toUid),
+          where('chatId', '==', chatId)
+        );
+        getDocs(q2).then(snap => {
+           if (!snap.empty && snapshot.empty) {
+             const docSnap = snap.docs[0];
+             callback({ id: docSnap.id, ...docSnap.data() });
+           } else if (snapshot.empty) {
+             callback(null);
+           }
+        });
+      }
+    });
+  }
+
   // Real Firestore accept friend request
   async acceptFriendRequest(requestId: string): Promise<boolean> {
     const reqRef = doc(db, 'friend_requests', requestId);
     try {
       await updateDoc(reqRef, { status: 'accepted', updatedAt: serverTimestamp() });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Real Firestore decline friend request
+  async declineFriendRequest(requestId: string): Promise<boolean> {
+    const reqRef = doc(db, 'friend_requests', requestId);
+    try {
+      await updateDoc(reqRef, { status: 'declined', updatedAt: serverTimestamp() });
       return true;
     } catch {
       return false;

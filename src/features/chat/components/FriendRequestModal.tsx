@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/Button';
 
 interface FriendRequestModalProps {
   isOpen: boolean;
-  status: 'idle' | 'sending' | 'sent' | 'accepted' | 'declined';
+  status: 'idle' | 'sending' | 'sent' | 'received' | 'accepted' | 'declined';
   onClose: () => void;
   onSendRequest: () => void;
+  onAcceptRequest?: () => void;
+  onDeclineRequest?: () => void;
   onContinueChatting: () => void;
 }
 
@@ -16,6 +18,8 @@ export const FriendRequestModal: React.FC<FriendRequestModalProps> = ({
   status,
   onClose,
   onSendRequest,
+  onAcceptRequest,
+  onDeclineRequest,
   onContinueChatting,
 }) => {
   return (
@@ -119,6 +123,34 @@ export const FriendRequestModal: React.FC<FriendRequestModalProps> = ({
                       <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }} className="w-2 h-2 rounded-full bg-primary/80" />
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* RECEIVED STATE */}
+              {status === 'received' && (
+                <div className="p-10 flex flex-col items-center text-center">
+                  <div className="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center mb-6 relative">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Heart size={32} className="text-primary fill-primary" />
+                    </motion.div>
+                  </div>
+                  <h2 className="typ-headline-sm font-bold text-on-surface mb-3">
+                    Friend Request!
+                  </h2>
+                  <p className="text-sm text-on-surface-variant max-w-[250px] mb-8">
+                    The other person wants to become friends and reveal identities.
+                  </p>
+                  <div className="w-full flex flex-col gap-3">
+                    <Button onClick={onAcceptRequest} className="w-full h-12 rounded-full gap-2 text-base font-semibold shadow-md">
+                      <Check size={18} /> Accept
+                    </Button>
+                    <Button variant="ghost" onClick={onDeclineRequest} className="w-full h-12 rounded-full text-on-surface-variant font-medium">
+                      Decline
+                    </Button>
+                  </div>
                 </div>
               )}
 

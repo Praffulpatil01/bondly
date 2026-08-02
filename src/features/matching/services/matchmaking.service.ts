@@ -1,5 +1,5 @@
 import { db, auth } from '@/config/firebase';
-import { doc, setDoc, onSnapshot, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, deleteDoc, serverTimestamp, runTransaction, collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 export type MatchState = 'searching' | 'found' | 'failed' | 'network-error';
 
@@ -37,10 +37,10 @@ export const MatchmakingService = {
   },
 
   /**
-   * Enters the matchmaking queue and listens for a match.
+   * Enters the matchmaking queue and attempts peer-to-peer matching.
    */
   async simulateSearch(
-    durationMs: number = 60000 // Increase duration for real matching
+    durationMs: number = 60000 
   ): Promise<{ state: MatchState; result?: MatchResult }> {
     return new Promise(async (resolve) => {
       const user = auth.currentUser;
@@ -50,52 +50,122 @@ export const MatchmakingService = {
       }
 
       const queueRef = doc(db, 'matchmaking_queue', user.uid);
+      let isResolved = false;
       
       try {
         await setDoc(queueRef, {
           status: 'searching',
           timestamp: serverTimestamp(),
-          // we could pass interests/filters here
         });
 
-        // Listen for cloud function updates
+        // 1. Listen for someone else matching with us
         const unsubscribe = onSnapshot(queueRef, async (docSnap) => {
-          if (docSnap.exists()) {
+          if (docSnap.exists() && !isResolved) {
             const data = docSnap.data();
-            if (data.status === 'matched' && data.matchedWith) {
+            if (data.status === 'matched' && data.chatId) {
+              isResolved = true;
               unsubscribe();
-              // In a real app we'd fetch the matched user's public info.
               resolve({
                 state: 'found',
                 result: {
                   userId: data.matchedWith,
-                  nickname: 'Anonymous', // Keep them anonymous
+                  nickname: 'Anonymous', 
                   avatarUrl: '',
                   sharedInterests: ['Bondly'],
                   chatId: data.chatId,
                 }
               });
-              
-              // Clean up queue
               await deleteDoc(queueRef).catch(() => {});
             }
           }
         }, (error) => {
           console.error("Matchmaking listener error:", error);
-          unsubscribe();
-          resolve({ state: 'network-error' });
+          if (!isResolved) {
+            isResolved = true;
+            unsubscribe();
+            resolve({ state: 'network-error' });
+          }
         });
+
+        // 2. Wait a moment so we don't immediately try to match and collide
+        await new Promise(r => setTimeout(r, 2000));
+
+        // 3. Actively try to find a match and run a transaction
+        if (!isResolved) {
+          try {
+            const q = query(
+              collection(db, 'matchmaking_queue'), 
+              where('status', '==', 'searching'), 
+              limit(2)
+            );
+            const querySnap = await getDocs(q);
+            
+            let matchDocRef = null;
+            let matchId = null;
+            for (const docSnap of querySnap.docs) {
+              if (docSnap.id !== user.uid) {
+                matchDocRef = docSnap.ref;
+                matchId = docSnap.id;
+                break;
+              }
+            }
+
+            if (matchDocRef && matchId) {
+              // We found someone! Let's try to secure the match via transaction
+              await runTransaction(db, async (transaction) => {
+                const myQueueDoc = await transaction.get(queueRef);
+                const theirQueueDoc = await transaction.get(matchDocRef);
+                
+                if (myQueueDoc.data()?.status !== 'searching' || theirQueueDoc.data()?.status !== 'searching') {
+                  throw new Error("One of the users is no longer searching.");
+                }
+
+                // Create the chat room
+                const chatRef = doc(collection(db, 'chats'));
+                transaction.set(chatRef, {
+                  id: chatRef.id,
+                  status: 'active',
+                  startedAt: serverTimestamp(),
+                  participants: [user.uid, matchId]
+                });
+
+                // Update both users to matched
+                transaction.update(queueRef, {
+                  status: 'matched',
+                  matchedWith: matchId,
+                  chatId: chatRef.id
+                });
+
+                transaction.update(matchDocRef, {
+                  status: 'matched',
+                  matchedWith: user.uid,
+                  chatId: chatRef.id
+                });
+              });
+              // If transaction succeeds, our onSnapshot will fire and resolve
+            }
+          } catch (e) {
+            console.log("Transaction failed, waiting to be matched passively...", e);
+            // It's okay, we'll just wait for someone else to match with us
+          }
+        }
 
         // Timeout fallback
         setTimeout(async () => {
-          unsubscribe();
-          await deleteDoc(queueRef).catch(() => {});
-          resolve({ state: 'failed' });
+          if (!isResolved) {
+            isResolved = true;
+            unsubscribe();
+            await deleteDoc(queueRef).catch(() => {});
+            resolve({ state: 'failed' });
+          }
         }, durationMs);
 
       } catch (error) {
         console.error("Matchmaking error:", error);
-        resolve({ state: 'network-error' });
+        if (!isResolved) {
+          isResolved = true;
+          resolve({ state: 'network-error' });
+        }
       }
     });
   },

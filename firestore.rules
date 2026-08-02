@@ -15,14 +15,15 @@ service cloud.firestore {
     }
 
     // Matchmaking queue
-    // Anyone authenticated can join or leave the queue
+    // Anyone authenticated can read to find matches and write to match users
     match /matchmaking_queue/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null;
     }
 
     // Chats collection
-    // Users can only read/write messages in chats they are part of
+    // Users can create chats to initiate a match, and read/update if they are a participant
     match /chats/{chatId} {
+      allow create: if request.auth != null;
       allow read, update: if request.auth != null && request.auth.uid in resource.data.participants;
       
       // Messages subcollection
@@ -34,9 +35,9 @@ service cloud.firestore {
 
     // Friend requests
     match /friend_requests/{requestId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUid;
-      allow update: if request.auth != null && request.auth.uid == resource.data.toUid;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid || request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
+      allow create: if request.auth != null && (request.auth.uid == request.resource.data.fromUid || request.auth.uid == request.resource.data.senderId);
+      allow update: if request.auth != null && (request.auth.uid == resource.data.toUid || request.auth.uid == resource.data.receiverId);
     }
   }
 }
