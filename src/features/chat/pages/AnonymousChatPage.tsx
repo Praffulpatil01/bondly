@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 
 // Components
 import { ChatHeader } from '../components/ChatHeader';
@@ -15,7 +14,7 @@ import { FriendRequestModal } from '../components/FriendRequestModal';
 import { ChatService, type ChatMessage } from '../services/chat.service';
 import { FriendsService } from '@/features/friends/services/friends.service';
 import { auth, db } from '@/config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot, DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { toast } from 'sonner';
 
 export const AnonymousChatPage = () => {
@@ -34,21 +33,42 @@ export const AnonymousChatPage = () => {
   const chatId = location.state?.chatId || 'mock-chat-123';
   const myUid = auth.currentUser?.uid || 'demo-user-123';
   const [theirUid, setTheirUid] = React.useState<string | null>(null);
+  const [isTyping, setIsTyping] = React.useState(false);
 
-  // Fetch the other user's ID
+  // Fetch chat details and sync timer
   React.useEffect(() => {
     if (chatId === 'mock-chat-123') return;
-    const fetchChatDetails = async () => {
-      const chatDoc = await getDoc(doc(db, 'chats', chatId));
+    
+    const unsubscribe = onSnapshot(doc(db, 'chats', chatId), (chatDoc: DocumentSnapshot<DocumentData>) => {
       if (chatDoc.exists()) {
-        const data = chatDoc.data();
+        const data = chatDoc.data({ serverTimestamps: 'estimate' });
+        
+        let foundOtherId = null;
         if (data.participants && Array.isArray(data.participants)) {
           const otherId = data.participants.find((id: string) => id !== myUid);
-          if (otherId) setTheirUid(otherId);
+          if (otherId) {
+            setTheirUid(otherId);
+            foundOtherId = otherId;
+          }
+        }
+        
+        if (foundOtherId && data.typing) {
+          setIsTyping(!!data.typing[foundOtherId]);
+        }
+        
+        // Sync timer
+        if (data.startedAt) {
+          const startedAtMs = data.startedAt.toMillis ? data.startedAt.toMillis() : (typeof data.startedAt === 'number' ? data.startedAt : Date.now());
+          const elapsed = Date.now() - startedAtMs;
+          const maxTime = 10 * 60 * 1000;
+          let remaining = maxTime - elapsed;
+          if (remaining < 0) remaining = 0;
+          setTimeLeftMs(remaining);
         }
       }
-    };
-    fetchChatDetails();
+    });
+
+    return () => unsubscribe();
   }, [chatId, myUid]);
 
   // Check auth
@@ -238,37 +258,58 @@ export const AnonymousChatPage = () => {
                 )
               ))}
             </AnimatePresence>
+
+            {/* Become Friends Call-to-Action */}
+            {messages.length > 0 && requestStatus !== 'accepted' && (
+              <div className="flex justify-center my-6 transition-all duration-700">
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  disabled={requestStatus === 'sending' || requestStatus === 'sent'}
+                  className={`group relative overflow-hidden px-8 py-4 rounded-xl shadow-lg flex items-center gap-3 transition-transform active:scale-95 ${
+                    requestStatus === 'sent' 
+                      ? 'bg-surface-variant text-on-surface-variant' 
+                      : 'bg-gradient-to-r from-primary to-secondary text-white'
+                  }`}
+                >
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <Heart size={20} className={requestStatus === 'sent' ? 'fill-current' : 'fill-white'} />
+                  <span className="font-headline-sm font-bold">
+                    {requestStatus === 'sent' ? 'Request Sent' : requestStatus === 'sending' ? 'Sending...' : 'Become Friends'}
+                  </span>
+                </button>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         </div>
 
-        {/* Bottom Area (Input + Floating Actions) */}
+        {/* Bottom Area (Input) */}
         <div className="absolute bottom-0 left-0 w-full flex flex-col">
-          {/* Floating Actions */}
-          <div className="w-full flex justify-center px-4 mb-4 pointer-events-none">
-            <div className="pointer-events-auto flex items-center gap-3 bg-surface-container-low/80 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-outline-variant/30">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLeaveChat}
-                className="text-on-surface-variant hover:text-on-surface rounded-full text-xs font-medium"
+          {/* Typing Indicator */}
+          <AnimatePresence>
+            {isTyping && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="px-8 pb-2 flex items-center gap-2"
               >
-                Skip
-              </Button>
-              <div className="w-[1px] h-4 bg-outline-variant/50"></div>
-              <Button
-                size="sm"
-                onClick={() => setIsModalOpen(true)}
-                className="rounded-full gap-1.5 text-xs font-bold shadow-sm bg-primary text-on-primary hover:opacity-90"
-              >
-                Become Friends <Heart size={14} className="fill-white" />
-              </Button>
-            </div>
-          </div>
+                <div className="bg-surface-variant text-on-surface-variant text-xs py-1.5 px-3 rounded-full flex items-center gap-2 shadow-sm">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                  <span>Someone is typing...</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <MessageInput
             onSendMessage={handleSendMessage}
-            disabled={requestStatus === 'accepted'} // Disable if chat became permanent (for now)
+            disabled={false}
+            onTyping={(typing) => ChatService.setTyping(chatId, myUid, typing)}
           />
         </div>
       </main>

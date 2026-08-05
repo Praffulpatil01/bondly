@@ -88,7 +88,7 @@ export const NotificationsPage = () => {
   const handleClick = (notification: Notification) => {
     if (notification.type === 'new_friend' || notification.type === 'friend_request_accepted') {
       const friendId = notification.senderId;
-      if (friendId) navigate(`/friend/${friendId}`);
+      if (friendId) navigate(`/friends/${friendId}`);
     } else if (notification.type === 'new_message') {
       const chatId = notification.metadata?.chatId;
       if (chatId) navigate(`/chat/permanent/${chatId}`);

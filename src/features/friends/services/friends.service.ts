@@ -26,16 +26,18 @@ export const FriendsService = {
     onUpdate: (friends: FriendData[]) => void,
     onError: (error: Error) => void
   ) => {
-    // Query friendships where user is a participant and status is active
+    // Query friendships where user is a participant
+    // Removed where('status', '==', 'active') to avoid requiring a composite index
     const q = query(
       collections.friendships,
-      where('users', 'array-contains', userId),
-      where('status', '==', 'active')
+      where('users', 'array-contains', userId)
     );
 
     return onSnapshot(q, async (snapshot) => {
       try {
-        const friendships = snapshot.docs.map(d => ({ ...(d.data() as Omit<Friendship, 'id'>), id: d.id } as Friendship));
+        const friendships = snapshot.docs
+          .map(d => ({ ...(d.data() as Omit<Friendship, 'id'>), id: d.id } as Friendship))
+          .filter(f => f.status === 'active'); // Filter in memory
         
         // Fetch profiles for all friends
         const friendsDataPromises = friendships.map(async (friendship) => {
@@ -43,8 +45,14 @@ export const FriendsService = {
           const friendId = friendship.users.find(id => id !== userId);
           if (!friendId) return null;
 
-          const profileRef = doc(collections.profiles, friendId);
-          const profileSnap = await getDoc(profileRef);
+          let profileRef = doc(collections.profiles, friendId);
+          let profileSnap = await getDoc(profileRef);
+          
+          if (!profileSnap.exists()) {
+            // Fallback to legacy 'users' collection
+            profileRef = doc(collections.users, friendId);
+            profileSnap = await getDoc(profileRef);
+          }
           
           if (profileSnap.exists()) {
             return {
@@ -95,23 +103,25 @@ export const FriendsService = {
    * Get friend profile and friendship status
    */
   getFriendProfile: async (friendId: string, currentUserId: string): Promise<FriendData | null> => {
-    const profileRef = doc(collections.profiles, friendId);
-    const profileSnap = await getDoc(profileRef);
+    let profileRef = doc(collections.profiles, friendId);
+    let profileSnap = await getDoc(profileRef);
     
-    if (!profileSnap.exists()) return null;
+    if (!profileSnap.exists()) {
+      // Fallback to legacy 'users' collection
+      profileRef = doc(collections.users, friendId);
+      profileSnap = await getDoc(profileRef);
+      
+      if (!profileSnap.exists()) {
+        throw new Error("PROFILE_NOT_FOUND");
+      }
+    }
 
     // Find the friendship document
-    // We query where users array contains both, but since we can't do multiple array-contains,
-    // we query for one and filter in memory, or use the known ID pattern if we used one.
-    // Assuming ID pattern isn't strict, we query where users contains currentUserId
     const q = query(
       collections.friendships,
       where('users', 'array-contains', currentUserId)
     );
     
-    // We only need the snapshot once for this specific profile
-    // We must use getDocs to execute query
-    // Actually, we must use getDocs to execute query
     const { getDocs } = await import('firebase/firestore');
     const querySnapshot = await getDocs(q);
     
@@ -120,7 +130,9 @@ export const FriendsService = {
       return data.users.includes(friendId) && data.status === 'active';
     });
 
-    if (!friendshipDoc) return null;
+    if (!friendshipDoc) {
+      throw new Error("FRIENDSHIP_NOT_FOUND");
+    }
 
     return {
       friendship: { ...(friendshipDoc.data() as Omit<Friendship, 'id'>), id: friendshipDoc.id } as Friendship,

@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Video, Settings, Plus, Smile, Send, Check, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Settings, Smile, Send, Check, CheckCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PermanentChatService } from '../services/permanent-chat.service';
-import { PermanentMessage } from '@/firebase/collections';
+import { PermanentMessage, collections } from '@/firebase/collections';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/firebase/firebase';
 import { Loader } from '@/components/ui/Loader';
+import { AnimatePresence, motion } from 'framer-motion';
+import EmojiPicker, { Theme, EmojiStyle } from 'emoji-picker-react';
 
 export const PermanentChatPage = () => {
   const { chatId } = useParams<{ chatId: string }>(); // Using friendshipId as chatId
@@ -15,25 +19,63 @@ export const PermanentChatPage = () => {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
   const [friendProfile, setFriendProfile] = useState<any>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [friendId, setFriendId] = useState<string | null>(null);
   
   const chatContainerRef = useRef<HTMLElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!user || !chatId) return;
 
-    // Load friend profile based on chat ID (assuming chatId == friendshipId)
     const loadData = async () => {
-      // Find the friend's ID by checking friendship details or just finding the other participant
-      // This is a bit tricky if we don't know the friend's ID upfront. 
-      // In a real app we'd fetch the chat document to get participants.
-      // For now, mock the friend profile if it fails.
-      
-      setFriendProfile({
-        nickname: 'Avery Bloom',
-        photoURL: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDry111lE2-3cw3Ze1CwmL90QLQuaS-G5OfLbgN4ydr390c9RpAQ-jJPRRm2EUZbWT3-PY1lAWbwPPtTl3nJH6_d4zxpULv-1XsaOmG5mOkBjdVA8b4gYwbtoJsDNWFEgnPg228FZDJqlP7MXHGTenE8MnKxheFRGMWQVdzpnc8jhzuqpca7a2gHqvGyeqm3MGZLEiQ2jzCWiQFA89YN2R-vcvssW0wDLueMWO0Fc9_yzrCWl_9x2Gngg',
-        onlineStatus: 'online'
-      });
-      setLoading(false);
+      try {
+        const { doc, getDoc } = await import('firebase/firestore');
+        const { collections } = await import('@/firebase/collections');
+        
+        let friendId: string | undefined = '';
+        
+        // 1. Check friendship document first
+        const friendshipRef = doc(collections.friendships, chatId);
+        const friendshipSnap = await getDoc(friendshipRef);
+        
+        if (friendshipSnap.exists()) {
+          const friendship = friendshipSnap.data();
+          friendId = friendship.users.find((id: string) => id !== user.uid);
+        } else {
+          // 2. Fallback to permanentChats if friendship missing
+          const chatRef = doc(collections.permanentChats, chatId);
+          const chatSnap = await getDoc(chatRef);
+          if (chatSnap.exists()) {
+            friendId = chatSnap.data().participants.find((id: string) => id !== user.uid);
+          }
+        }
+
+        if (friendId) {
+          // Initialize chat doc if it doesn't exist yet
+          await PermanentChatService.getOrInitializeChat(chatId, [user.uid, friendId]);
+
+          // Fetch friend profile with users fallback
+          let profileRef = doc(collections.profiles, friendId);
+          let profileSnap = await getDoc(profileRef);
+          
+          if (!profileSnap.exists()) {
+            profileRef = doc(collections.users, friendId);
+            profileSnap = await getDoc(profileRef);
+          }
+          
+          
+          if (profileSnap.exists()) {
+            setFriendProfile(profileSnap.data());
+            setFriendId(friendId);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading chat data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadData();
@@ -44,15 +86,29 @@ export const PermanentChatPage = () => {
         setMessages(msgs);
         // Auto mark as read
         msgs.forEach(m => {
-          if (m.senderId !== user.uid && !m.readBy.includes(user.uid)) {
-            PermanentChatService.markAsRead(chatId, m.id, user.uid, m.readBy).catch(console.error);
+          const currentReadBy = m.readBy || [];
+          if (m.senderId !== user.uid && !currentReadBy.includes(user.uid)) {
+            PermanentChatService.markAsRead(chatId, m.id, user.uid, currentReadBy).catch(console.error);
           }
         });
       },
       (error) => console.error(error)
     );
 
-    return () => unsubscribe();
+    const unsubscribeChat = onSnapshot(doc(db, 'permanent_chats', chatId), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.typing) {
+          const isSomeoneTyping = Object.entries(data.typing).some(([uid, typing]) => uid !== user.uid && typing);
+          setIsTyping(isSomeoneTyping);
+        }
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeChat();
+    };
   }, [chatId, user]);
 
   useEffect(() => {
@@ -69,6 +125,8 @@ export const PermanentChatPage = () => {
     
     try {
       await PermanentChatService.sendMessage(chatId, user.uid, text);
+      PermanentChatService.setTyping(chatId, user.uid, false);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     } catch (error) {
       console.error('Failed to send message', error);
       // rollback UI or show error
@@ -89,15 +147,7 @@ export const PermanentChatPage = () => {
     return <Loader fullScreen size={48} />;
   }
 
-  // Mock messages if empty for UI dev
-  const displayMessages = messages.length > 0 ? messages : [
-    {
-      id: 'm1', chatId: 'mock', senderId: 'friend', text: 'Hey! Did you see the new designs for the Bondly dashboard? I think the violet accents really pop. ✨', timestamp: Date.now() - 300000, readBy: ['me']
-    },
-    {
-      id: 'm2', chatId: 'mock', senderId: user?.uid || 'me', text: 'I just saw them! The "Sophisticated Playfulness" vibe is exactly what we needed. Feels very Apple-esque but warmer.', timestamp: Date.now() - 200000, readBy: ['me', 'friend']
-    }
-  ] as PermanentMessage[];
+  const displayMessages = messages;
 
   return (
     <div className="bg-background text-on-surface font-body-md h-screen flex flex-col overflow-hidden">
@@ -108,7 +158,7 @@ export const PermanentChatPage = () => {
             <ArrowLeft className="text-primary" size={24} />
           </button>
           
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/friends/${chatId}`)}>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => friendId && navigate(`/friends/${friendId}`)}>
             <div className="relative">
               <img src={friendProfile?.photoURL} alt="Avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" />
               {friendProfile?.onlineStatus === 'online' && (
@@ -126,9 +176,6 @@ export const PermanentChatPage = () => {
         
         <div className="flex items-center gap-1">
           <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant/50 transition-colors active:scale-95 duration-200 text-on-surface-variant">
-            <Video size={20} />
-          </button>
-          <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant/50 transition-colors active:scale-95 duration-200 text-on-surface-variant">
             <Settings size={20} />
           </button>
         </div>
@@ -144,7 +191,8 @@ export const PermanentChatPage = () => {
 
         {displayMessages.map((msg) => {
           const isMe = msg.senderId === user?.uid;
-          const isRead = msg.readBy.length > 1; // Assuming 2 participants, length > 1 means the other read it
+          const readByArray = msg.readBy || [];
+          const isRead = readByArray.length > 1; 
           
           return (
             <div key={msg.id} className={`flex flex-col max-w-[85%] space-y-1 ${isMe ? 'items-end ml-auto' : 'items-start'}`}>
@@ -167,22 +215,69 @@ export const PermanentChatPage = () => {
       </main>
 
       {/* Bottom Input Area */}
-      <footer className="fixed bottom-0 left-0 w-full bg-surface/80 backdrop-blur-xl p-4 z-50 border-t border-outline-variant/30">
-        <div className="max-w-screen-md mx-auto flex items-center gap-3">
-          <button className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-highest/50 text-primary hover:bg-surface-container-highest transition-all active:scale-90">
-            <Plus size={24} />
-          </button>
-          
-          <div className="relative flex-grow">
+      <footer className="fixed bottom-0 left-0 w-full z-50 flex flex-col pointer-events-none">
+        
+        {/* Typing Indicator */}
+        <div className="max-w-screen-md mx-auto w-full px-5 pb-2">
+          <AnimatePresence>
+            {isTyping && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="flex items-center gap-2 pointer-events-auto"
+              >
+                <div className="bg-surface-variant text-on-surface-variant text-xs py-1.5 px-3 rounded-full flex items-center gap-2 shadow-sm">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                  <span>{friendProfile?.nickname || 'Someone'} is typing...</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="w-full bg-surface/80 backdrop-blur-xl p-4 border-t border-outline-variant/30 pointer-events-auto">
+          <div className="max-w-screen-md mx-auto flex items-center gap-3">
+            <div className="relative flex-grow">
+            {showEmojiPicker && (
+              <div className="absolute bottom-full mb-4 right-0 z-[100] shadow-2xl rounded-2xl overflow-hidden border border-outline-variant/30 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <EmojiPicker 
+                  theme={Theme.AUTO}
+                  emojiStyle={EmojiStyle.APPLE}
+                  onEmojiClick={(emojiData) => {
+                    setInputText(prev => prev + emojiData.emoji);
+                  }}
+                  lazyLoadEmojis
+                  width={320}
+                  height={400}
+                />
+              </div>
+            )}
             <input 
               value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              onChange={(e) => {
+                setInputText(e.target.value);
+                if (user && chatId) {
+                  PermanentChatService.setTyping(chatId, user.uid, true);
+                  if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                  typingTimeoutRef.current = setTimeout(() => {
+                    PermanentChatService.setTyping(chatId, user.uid, false);
+                  }, 2000);
+                }
+              }}
               onKeyDown={handleKeyPress}
               className="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-full py-3 pl-5 pr-12 text-base outline-none transition-all" 
               placeholder="Type a message..." 
               type="text"
             />
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+            <button 
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${showEmojiPicker ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+            >
               <Smile size={20} />
             </button>
           </div>
@@ -190,10 +285,11 @@ export const PermanentChatPage = () => {
           <button 
             onClick={handleSend}
             disabled={!inputText.trim()}
-            className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-primary text-on-primary shadow-lg shadow-primary/20 active:scale-90 transition-transform disabled:opacity-50 disabled:active:scale-100"
+            className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-primary text-on-primary shadow-lg shadow-primary/20 active:scale-90 transition-transform disabled:opacity-50 disabled:active:scale-100 pointer-events-auto"
           >
             <Send size={20} className="ml-1" />
           </button>
+        </div>
         </div>
       </footer>
     </div>

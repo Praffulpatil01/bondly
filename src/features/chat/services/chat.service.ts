@@ -199,6 +199,16 @@ class ChatServiceImpl {
       return false;
     }
   }
+
+  // Set typing status
+  async setTyping(chatId: string, uid: string, isTyping: boolean): Promise<void> {
+    const chatRef = doc(db, 'chats', chatId);
+    try {
+      await updateDoc(chatRef, { [`typing.${uid}`]: isTyping });
+    } catch (e) {
+      console.warn('Failed to update typing status', e);
+    }
+  }
 }
 
 export const ChatService = new ChatServiceImpl();

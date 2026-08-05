@@ -123,5 +123,18 @@ export const PermanentChatService = {
     await updateDoc(msgRef, {
       readBy: [...currentReadBy, userId]
     });
+  },
+
+  /**
+   * Set typing indicator
+   */
+  setTyping: async (chatId: string, userId: string, isTyping: boolean) => {
+    try {
+      await updateDoc(doc(collections.permanentChats, chatId), {
+        [`typing.${userId}`]: isTyping
+      });
+    } catch (e) {
+      console.error('Failed to set typing status', e);
+    }
   }
 };

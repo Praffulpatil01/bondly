@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 export const FriendsListPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [tab, setTab] = useState<'online' | 'all'>('online');
+  const [tab, setTab] = useState<'online' | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [friends, setFriends] = useState<FriendData[]>([]);
   const [loading, setLoading] = useState(true);
