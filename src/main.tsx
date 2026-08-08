@@ -19,29 +19,32 @@ import { NotificationsPage } from './features/notifications/pages/NotificationsP
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { GuestRoute } from './components/auth/GuestRoute';
+import { ThemeProvider } from 'next-themes';
 import './styles/index.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-          <Route path="/signup" element={<GuestRoute><SignUpPage /></GuestRoute>} />
-          <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/match-search" element={<ProtectedRoute><MatchSearchPage /></ProtectedRoute>} />
-          <Route path="/chat" element={<ProtectedRoute><AnonymousChatPage /></ProtectedRoute>} />
-          <Route path="/time-up" element={<ProtectedRoute><TimeUpPage /></ProtectedRoute>} />
-          <Route path="/friends" element={<ProtectedRoute><FriendsListPage /></ProtectedRoute>} />
-          <Route path="/friends/:friendId" element={<ProtectedRoute><FriendProfilePage /></ProtectedRoute>} />
-          <Route path="/chat/permanent/:chatId" element={<ProtectedRoute><PermanentChatPage /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-        </Routes>
-        <Toaster position="top-center" />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+            <Route path="/signup" element={<GuestRoute><SignUpPage /></GuestRoute>} />
+            <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+            <Route path="/match-search" element={<ProtectedRoute><MatchSearchPage /></ProtectedRoute>} />
+            <Route path="/chat" element={<ProtectedRoute><AnonymousChatPage /></ProtectedRoute>} />
+            <Route path="/time-up" element={<ProtectedRoute><TimeUpPage /></ProtectedRoute>} />
+            <Route path="/friends" element={<ProtectedRoute><FriendsListPage /></ProtectedRoute>} />
+            <Route path="/friends/:friendId" element={<ProtectedRoute><FriendProfilePage /></ProtectedRoute>} />
+            <Route path="/chat/permanent/:chatId" element={<ProtectedRoute><PermanentChatPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          </Routes>
+          <Toaster position="top-center" />
+        </ThemeProvider>
       </BrowserRouter>
     </AuthProvider>
   </React.StrictMode>

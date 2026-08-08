@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Notification } from '@/firebase/collections';
 
-export type NotificationFilterType = 'All' | 'Unread' | 'Friends' | 'Messages' | 'System';
+export type NotificationFilterType = 'All' | 'Unread' | 'Friends' | 'System';
 
 interface NotificationState {
   notifications: Notification[];
@@ -39,18 +39,13 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     
     switch (selectedFilter) {
       case 'Unread':
-        return notifications.filter(n => !n.isRead);
+        return notifications.filter(n => !n.isRead && n.type !== 'new_message');
       case 'Friends':
         return notifications.filter(n => 
           n.type === 'friend_request_received' || 
           n.type === 'friend_request_accepted' ||
           n.type === 'friend_request_declined' ||
           n.type === 'new_friend'
-        );
-      case 'Messages':
-        return notifications.filter(n => 
-          n.type === 'new_message' || 
-          n.type === 'chat_ended'
         );
       case 'System':
         return notifications.filter(n => 
@@ -61,7 +56,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         );
       case 'All':
       default:
-        return notifications;
+        return notifications.filter(n => n.type !== 'new_message');
     }
   }
 }));

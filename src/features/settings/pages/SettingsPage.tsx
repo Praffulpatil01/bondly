@@ -6,18 +6,20 @@ import { doc, getDoc } from 'firebase/firestore';
 import { collections, UserProfile } from '@/firebase/collections';
 import { auth } from '@/firebase/firebase';
 import { signOut } from 'firebase/auth';
+import { useTheme } from 'next-themes';
 
 export const SettingsPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, setTheme, systemTheme } = useTheme();
+  
+  // To avoid hydration mismatch errors on render
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check local storage for dark mode
-    const isDark = document.documentElement.classList.contains('dark');
-    setIsDarkMode(isDark);
-
+    setMounted(true);
+    
     const fetchProfile = async () => {
       if (!user) {
         setProfile({
@@ -28,20 +30,38 @@ export const SettingsPage = () => {
         } as UserProfile);
         return;
       }
-      
-      const docRef = doc(collections.profiles, user.uid);
-      const profileSnap = await getDoc(docRef);
-      if (profileSnap.exists()) {
-        setProfile(profileSnap.data());
+      try {
+        let docRef = doc(collections.profiles, user.uid);
+        let profileSnap = await getDoc(docRef);
+        
+        if (!profileSnap.exists()) {
+          docRef = doc(collections.users, user.uid);
+          profileSnap = await getDoc(docRef);
+        }
+        
+        if (profileSnap.exists()) {
+          setProfile(profileSnap.data() as UserProfile);
+        } else {
+          setProfile({
+            uid: user.uid,
+            email: user.email || '',
+            nickname: user.displayName || 'User',
+            photoURL: user.photoURL || '',
+          } as UserProfile);
+        }
+      } catch (error) {
+        console.error("Failed to load profile", error);
       }
     };
     
     fetchProfile();
   }, [user]);
 
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const isDarkMode = currentTheme === 'dark';
+
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    setTheme(isDarkMode ? 'light' : 'dark');
   };
 
   const handleLogout = async () => {
@@ -92,8 +112,8 @@ export const SettingsPage = () => {
                 </div>
                 <span className="text-base font-medium">Dark Mode</span>
               </div>
-              <div className={`w-11 h-6 rounded-full relative transition-colors ${isDarkMode ? 'bg-primary' : 'bg-outline-variant'}`}>
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${isDarkMode ? 'left-6' : 'left-1'}`}></div>
+              <div className={`w-11 h-6 rounded-full relative transition-colors ${mounted && isDarkMode ? 'bg-primary' : 'bg-outline-variant'}`}>
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${mounted && isDarkMode ? 'left-6' : 'left-1'}`}></div>
               </div>
             </div>
             

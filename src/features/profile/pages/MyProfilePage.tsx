@@ -7,12 +7,14 @@ import { collections, UserProfile } from '@/firebase/collections';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Loader } from '@/components/ui/Loader';
 import { NotificationBadge } from '@/features/notifications/components/NotificationBadge';
+import { EditProfileModal } from '../components/EditProfileModal';
 
 export const MyProfilePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -35,10 +37,29 @@ export const MyProfilePage = () => {
       }
 
       try {
-        const docRef = doc(collections.profiles, user.uid);
-        const profileSnap = await getDoc(docRef);
+        let docRef = doc(collections.profiles, user.uid);
+        let profileSnap = await getDoc(docRef);
+        
+        if (!profileSnap.exists()) {
+          docRef = doc(collections.users, user.uid);
+          profileSnap = await getDoc(docRef);
+        }
+        
         if (profileSnap.exists()) {
-          setProfile(profileSnap.data());
+          setProfile(profileSnap.data() as UserProfile);
+        } else {
+          setProfile({
+            uid: user.uid,
+            email: user.email || '',
+            nickname: user.displayName || 'User',
+            photoURL: user.photoURL || '',
+            bio: '',
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            onboardingCompleted: true,
+            friendsCount: 0,
+            chatsCount: 0
+          } as UserProfile);
         }
       } catch (error) {
         console.error("Failed to load profile", error);
@@ -80,7 +101,10 @@ export const MyProfilePage = () => {
                 </div>
               )}
             </div>
-            <button className="absolute bottom-1 right-1 bg-primary text-on-primary p-3 rounded-full shadow-lg active:scale-90 transition-transform hover:bg-secondary">
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="absolute bottom-1 right-1 bg-primary text-on-primary p-3 rounded-full shadow-lg active:scale-90 transition-transform hover:bg-secondary"
+            >
               <Edit2 size={20} />
             </button>
           </div>
@@ -92,7 +116,10 @@ export const MyProfilePage = () => {
             </p>
           </div>
           
-          <button className="bg-primary-container text-on-primary-container font-semibold py-3 px-8 rounded-full shadow-md active:scale-95 transition-transform hover:opacity-90 flex items-center gap-2">
+          <button 
+            onClick={() => setIsEditModalOpen(true)}
+            className="bg-primary-container text-on-primary-container font-semibold py-3 px-8 rounded-full shadow-md active:scale-95 transition-transform hover:opacity-90 flex items-center gap-2"
+          >
             <UserCog size={20} />
             Edit Profile
           </button>
@@ -120,36 +147,28 @@ export const MyProfilePage = () => {
         <section className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold font-['Outfit'] text-on-surface">Interests</h2>
-            <button className="text-primary font-semibold text-sm hover:underline">Manage</button>
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="text-primary font-semibold text-sm hover:underline"
+            >
+              Manage
+            </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <div className="bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border border-outline-variant/20 hover:border-primary/30 transition-colors cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center">
-                <Star className="text-on-tertiary-fixed fill-current" size={24} />
+            {profile.interests && profile.interests.length > 0 ? (
+              profile.interests.map((interest, index) => (
+                <div key={index} className="bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border border-outline-variant/20 hover:border-primary/30 transition-colors cursor-pointer">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Star className="text-primary fill-current" size={24} />
+                  </div>
+                  <span className="text-sm font-medium text-on-surface text-center capitalize">{interest}</span>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full py-4 text-center">
+                <span className="text-sm font-medium text-on-surface-variant">No interests added yet.</span>
               </div>
-              <span className="text-sm font-medium text-on-surface text-center">Gaming</span>
-            </div>
-            
-            <div className="bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border border-outline-variant/20 cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center">
-                <Heart className="text-on-secondary-fixed fill-current" size={24} />
-              </div>
-              <span className="text-sm font-medium text-on-surface text-center">Music</span>
-            </div>
-            
-            <div className="bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border border-outline-variant/20 cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
-                <Zap className="text-on-primary-fixed fill-current" size={24} />
-              </div>
-              <span className="text-sm font-medium text-on-surface text-center">Fitness</span>
-            </div>
-            
-            <div className="bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border border-outline-variant/20 opacity-50 grayscale cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center">
-                <ShieldCheck className="text-outline" size={24} />
-              </div>
-              <span className="text-sm font-medium text-on-surface text-center">Verified</span>
-            </div>
+            )}
           </div>
         </section>
 
@@ -185,6 +204,15 @@ export const MyProfilePage = () => {
         </section>
       </main>
       
+      {profile && (
+        <EditProfileModal 
+          isOpen={isEditModalOpen} 
+          onClose={() => setIsEditModalOpen(false)} 
+          profile={profile} 
+          onSave={(updates) => setProfile({ ...profile, ...updates })} 
+        />
+      )}
+
       <BottomNav />
     </div>
   );

@@ -6,7 +6,7 @@ export const NotificationTabs = () => {
   const selectedFilter = useNotificationStore(state => state.selectedFilter);
   const setFilter = useNotificationStore(state => state.setFilter);
 
-  const tabs: NotificationFilterType[] = ['All', 'Unread', 'Friends', 'Messages', 'System'];
+  const tabs: NotificationFilterType[] = ['All', 'Unread', 'Friends', 'System'];
 
   return (
     <div className="sticky top-16 z-40 bg-background/90 backdrop-blur-md border-b border-outline-variant/30 py-3 px-5 overflow-x-auto no-scrollbar flex items-center gap-2">
