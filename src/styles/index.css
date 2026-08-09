@@ -175,3 +175,36 @@
   100% { transform: scale(1.5); opacity: 0; }
 }
 
+
+/* ===== Custom Landing Page Styles ===== */
+@utility glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+@utility floating {
+    animation: floating 6s ease-in-out infinite;
+}
+
+@utility floating-delayed {
+    animation: floating 7s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+@utility gradient-text {
+    background: linear-gradient(135deg, #5442dd 0%, #6d5ef7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@utility shadow-soft {
+    box-shadow: 0 12px 40px rgba(109, 94, 247, 0.08);
+}

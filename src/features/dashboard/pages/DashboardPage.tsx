@@ -20,6 +20,19 @@ import { Button } from '@/components/ui/Button';
 import { FriendsService, FriendData } from '@/features/friends/services/friends.service';
 import { Loader } from '@/components/ui/Loader';
 import { NotificationBadge } from '@/features/notifications/components/NotificationBadge';
+import { BottomNav } from '@/components/layout/BottomNav';
+
+const VIBES = [
+  { id: 'surprise', emoji: '✨', title: 'Surprise Me', desc: 'Meet someone unexpected' },
+  { id: 'deep-talk', emoji: '🧠', title: 'Deep Talk', desc: 'Meaningful conversations' },
+  { id: 'fun', emoji: '😂', title: 'Fun & Casual', desc: 'Light and funny' },
+  { id: 'culture-travel', emoji: '🌎', title: 'Culture & Travel', desc: 'Explore ideas and places' },
+  { id: 'ideas-startups', emoji: '🚀', title: 'Ideas & Startups', desc: 'Talk about ideas and the future' },
+  { id: 'gaming', emoji: '🎮', title: 'Gaming', desc: 'Games, hobbies and fun' },
+  { id: 'career', emoji: '💼', title: 'Career', desc: 'Goals, work and ambitions' },
+  { id: 'music-movies', emoji: '🎵', title: 'Music & Movies', desc: 'Share what you love' },
+  { id: 'language-practice', emoji: '🗣️', title: 'Language Practice', desc: 'Practice a language together' },
+];
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -28,6 +41,7 @@ export const DashboardPage = () => {
   const [loading, setLoading] = React.useState(true);
   const [recentFriends, setRecentFriends] = React.useState<FriendData[]>([]);
   const [friendRequests, setFriendRequests] = React.useState<FriendRequest[]>([]);
+  const [selectedVibe, setSelectedVibe] = React.useState('surprise');
 
   React.useEffect(() => {
     const fetchProfile = async () => {
@@ -144,56 +158,57 @@ export const DashboardPage = () => {
           <p className="text-base text-on-surface-variant">Your connection circle is growing.</p>
         </section>
 
-        {/* Main Action Card */}
-        <section>
-          <div onClick={() => navigate('/match-search')} className="relative group cursor-pointer overflow-hidden bg-primary-container rounded-2xl p-6 md:p-8 shadow-[0_12px_40px_rgba(109,94,247,0.25)] transition-all hover:scale-[1.02] active:scale-95">
-            <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold font-['Outfit'] text-on-primary-container mb-2">
-                  Find a new match
-                </h2>
-                <p className="text-sm text-on-primary-container/80 max-w-sm">
-                  Discover someone new who shares your passions and vibes today.
-                </p>
-              </div>
-              <div className="flex items-center">
-                <Button className="bg-surface-container-lowest text-primary hover:bg-surface-container-lowest hover:opacity-90 shadow-lg text-sm rounded-full gap-2 px-6 h-12">
-                  <Sparkles size={18} />
-                  Start Exploring
-                </Button>
-              </div>
-            </div>
+        {/* Conversation Vibes */}
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold font-['Outfit'] text-on-surface">
+              Who do you feel like talking to today?
+            </h2>
+            <p className="text-sm text-on-surface-variant">
+              Choose a vibe and Bondly will find someone interesting to talk to.
+            </p>
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {VIBES.map((vibe) => {
+              const isSelected = selectedVibe === vibe.id;
+              return (
+                <button
+                  key={vibe.id}
+                  onClick={() => setSelectedVibe(vibe.id)}
+                  className={`relative p-4 rounded-2xl border text-left transition-all overflow-hidden ${
+                    isSelected 
+                      ? 'bg-primary/10 border-primary shadow-sm' 
+                      : 'bg-surface-container-low border-outline-variant/30 hover:border-outline-variant/60'
+                  }`}
+                  style={{ minHeight: '110px' }}
+                >
+                  {isSelected && (
+                    <div className="absolute top-3 right-3 text-primary">
+                      <Check size={18} strokeWidth={3} />
+                    </div>
+                  )}
+                  <div className="text-2xl mb-2">{vibe.emoji}</div>
+                  <h3 className={`font-bold font-['Outfit'] text-sm mb-1 ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
+                    {vibe.title}
+                  </h3>
+                  <p className="text-xs text-on-surface-variant leading-tight">
+                    {vibe.desc}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
+          <Button 
+            onClick={() => navigate('/match-search', { state: { vibe: selectedVibe } })}
+            className="w-full h-14 rounded-full text-lg font-bold gap-2 mt-2 shadow-lg active:scale-[0.98] transition-transform"
+          >
+            <Sparkles size={20} />
+            Find Someone
+          </Button>
         </section>
 
-        {/* Quick Actions */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div onClick={() => navigate('/match-search')} className="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-surface-container transition-colors border border-outline-variant/30">
-            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-              <MessageCircle size={24} />
-            </div>
-            <span className="text-sm font-semibold">Start Chat</span>
-          </div>
-          <div onClick={() => navigate('/friends')} className="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-surface-container transition-colors border border-outline-variant/30">
-            <div className="w-12 h-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center">
-              <Users size={24} />
-            </div>
-            <span className="text-sm font-semibold">Friends</span>
-          </div>
-          <div className="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-surface-container transition-colors border border-outline-variant/30">
-            <div className="w-12 h-12 rounded-full bg-tertiary/10 text-tertiary flex items-center justify-center">
-              <Bell size={24} />
-            </div>
-            <span className="text-sm font-semibold">Alerts</span>
-          </div>
-          <div onClick={() => navigate('/settings')} className="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-surface-container transition-colors border border-outline-variant/30">
-            <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center">
-              <ShieldCheck size={24} />
-            </div>
-            <span className="text-sm font-semibold">Safety</span>
-          </div>
-        </section>
 
         {/* Recent Friends Horizontal Scroll */}
         <section>
@@ -267,30 +282,8 @@ export const DashboardPage = () => {
           </section>
         )}
 
-        {/* Bento Grid Insights */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-surface-container-high rounded-2xl p-6 flex flex-col justify-between border border-outline-variant/20">
-            <div>
-              <Sparkles className="text-primary mb-3" size={24} />
-              <h4 className="text-lg font-bold font-['Outfit'] text-on-surface mb-1">Daily Tip</h4>
-              <p className="text-sm text-on-surface-variant">Update your interests to find more accurate matches.</p>
-            </div>
-            <button className="mt-6 w-10 h-10 rounded-full bg-surface flex items-center justify-center hover:bg-surface-variant transition-colors self-end">
-              <ChevronRight size={20} />
-            </button>
-          </div>
-          <div className="bg-primary text-white rounded-2xl p-6 flex flex-col justify-between shadow-[0_8px_30px_rgba(109,94,247,0.2)]">
-            <div>
-              <ShieldCheck className="text-primary-container mb-3" size={24} />
-              <h4 className="text-lg font-bold font-['Outfit'] mb-1">Safety First</h4>
-              <p className="text-sm text-primary-container/80">Review our community guidelines to keep Bondly a safe space.</p>
-            </div>
-            <button className="mt-6 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors self-end">
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </section>
       </main>
+      <BottomNav />
     </div>
   );
 };
