@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Moon, Bell, Lock, Ban, ShieldAlert, Gavel, HelpCircle, LogOut, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, Moon, Bell, Lock, Ban, ShieldAlert, Gavel, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { collections, UserProfile } from '@/firebase/collections';

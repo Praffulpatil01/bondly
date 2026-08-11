@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Settings, Smile, Send, Check, CheckCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PermanentChatService } from '../services/permanent-chat.service';
-import { PermanentMessage, collections } from '@/firebase/collections';
+import { PermanentMessage } from '@/firebase/collections';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { Loader } from '@/components/ui/Loader';

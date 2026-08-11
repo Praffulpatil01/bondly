@@ -4,12 +4,8 @@ import {
   Bell,
   Settings,
   Sparkles,
-  MessageCircle,
-  Users,
-  ShieldCheck,
   Check,
   X,
-  ChevronRight,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
