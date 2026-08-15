@@ -42,7 +42,7 @@ export const OnboardingPage = () => {
 
   const handleComplete = async () => {
     const user = auth.currentUser;
-    const demoUser = localStorage.getItem('bondly_demo_user');
+    const demoUser = localStorage.getItem('Ryple_demo_user');
     
     if (!user && !demoUser) {
       toast.error('You must be logged in to complete onboarding.');
@@ -74,7 +74,7 @@ export const OnboardingPage = () => {
           language: language,
         });
       }
-      toast.success('Onboarding complete! Welcome to Bondly.');
+      toast.success('Onboarding complete! Welcome to Ryple.');
       navigate('/dashboard');
     } catch (error) {
       toast.error('Failed to save profile data.');
@@ -115,7 +115,7 @@ export const OnboardingPage = () => {
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-50 h-16 flex items-center px-5 md:px-10 justify-between bg-surface/80 backdrop-blur-xl">
-        <span className="text-xl font-bold font-['Outfit'] text-primary">Bondly</span>
+        <span className="text-xl font-bold font-['Outfit'] text-primary">Ryple</span>
         {step > 1 && (
           <button
             onClick={prevStep}
@@ -165,7 +165,7 @@ export const OnboardingPage = () => {
                     <Sparkles className="text-white" size={48} />
                   </div>
                   <h1 className="text-3xl font-bold font-['Outfit'] text-on-surface mb-4">
-                    Welcome to Bondly
+                    Welcome to Ryple
                   </h1>
                   <p className="text-base text-on-surface-variant mb-10 max-w-sm">
                     Get ready to experience a secure, anonymous way to form real human connections. Let's set up your profile.
@@ -317,7 +317,7 @@ export const OnboardingPage = () => {
                     Community Guidelines
                   </h1>
                   <p className="text-base text-on-surface-variant mb-8">
-                    Bondly is a safe space. Please review our rules before joining.
+                    Ryple is a safe space. Please review our rules before joining.
                   </p>
 
                   <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-8 space-y-4">

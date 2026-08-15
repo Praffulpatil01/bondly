@@ -6,7 +6,7 @@ import {
   Sparkles,
   Check,
   X,
-  LogOut
+  // LogOut
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { doc } from 'firebase/firestore';
@@ -32,7 +32,7 @@ const VIBES = [
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [recentFriends, setRecentFriends] = React.useState<FriendData[]>([]);
@@ -41,13 +41,13 @@ export const DashboardPage = () => {
 
   React.useEffect(() => {
     const fetchProfile = async () => {
-      const demoUser = localStorage.getItem('bondly_demo_user');
-      
+      const demoUser = localStorage.getItem('Ryple_demo_user');
+
       if (user) {
         try {
           const docRef = doc(collections.profiles, user.uid);
           const profile = await getDocument(docRef);
-          
+
           if (profile) {
             setUserProfile(profile);
             if (!profile.onboardingCompleted) {
@@ -58,9 +58,13 @@ export const DashboardPage = () => {
           console.error("Failed to load profile", e);
         }
       } else if (demoUser) {
-        setUserProfile({ nickname: 'Demo User' } as UserProfile);
+        try {
+          setUserProfile(JSON.parse(demoUser) as UserProfile);
+        } catch (e) {
+          setUserProfile({ nickname: 'Demo User' } as UserProfile);
+        }
       }
-      
+
       setLoading(false);
     };
 
@@ -117,22 +121,22 @@ export const DashboardPage = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 h-16 flex items-center justify-between px-5 md:px-10 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30">
         <div className="flex items-center gap-3">
-          <span className="text-xl font-bold font-['Outfit'] text-primary">Bondly</span>
+          <span className="text-xl font-bold font-['Outfit'] text-primary">Ryple</span>
         </div>
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={() => navigate('/notifications')}
             className="relative w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
           >
             <Bell size={20} />
             <NotificationBadge />
           </button>
-          <button 
+          <button
             onClick={() => navigate('/settings')}
             className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors">
             <Settings size={20} />
           </button>
-          <button 
+          {/* <button
             onClick={async () => {
               await logout();
               navigate('/login');
@@ -141,7 +145,7 @@ export const DashboardPage = () => {
             className="w-10 h-10 flex items-center justify-center rounded-full text-error hover:bg-error-container transition-colors ml-1"
           >
             <LogOut size={20} />
-          </button>
+          </button> */}
         </div>
       </header>
 
@@ -161,7 +165,7 @@ export const DashboardPage = () => {
               Who do you feel like talking to today?
             </h2>
             <p className="text-sm text-on-surface-variant">
-              Choose a vibe and Bondly will find someone interesting to talk to.
+              Choose a vibe and Ryple will find someone interesting to talk to.
             </p>
           </div>
 
@@ -172,11 +176,10 @@ export const DashboardPage = () => {
                 <button
                   key={vibe.id}
                   onClick={() => setSelectedVibe(vibe.id)}
-                  className={`relative p-4 rounded-2xl border text-left transition-all overflow-hidden ${
-                    isSelected 
-                      ? 'bg-primary/10 border-primary shadow-sm' 
-                      : 'bg-surface-container-low border-outline-variant/30 hover:border-outline-variant/60'
-                  }`}
+                  className={`relative p-4 rounded-2xl border text-left transition-all overflow-hidden ${isSelected
+                    ? 'bg-primary/10 border-primary shadow-sm'
+                    : 'bg-surface-container-low border-outline-variant/30 hover:border-outline-variant/60'
+                    }`}
                   style={{ minHeight: '110px' }}
                 >
                   {isSelected && (
@@ -196,7 +199,7 @@ export const DashboardPage = () => {
             })}
           </div>
 
-          <Button 
+          <Button
             onClick={() => navigate('/match-search', { state: { vibe: selectedVibe } })}
             className="w-full h-14 rounded-full text-lg font-bold gap-2 mt-2 shadow-lg active:scale-[0.98] transition-transform"
           >
@@ -259,13 +262,13 @@ export const DashboardPage = () => {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <button 
+                    <button
                       onClick={() => handleDeclineRequest(req.id)}
                       className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors"
                     >
                       <X size={18} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleAcceptRequest(req)}
                       className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary hover:bg-primary-container transition-colors"
                     >

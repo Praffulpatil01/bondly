@@ -73,7 +73,7 @@ export const AnonymousChatPage = () => {
 
   // Check auth
   React.useEffect(() => {
-    const demoUser = localStorage.getItem('bondly_demo_user');
+    const demoUser = localStorage.getItem('Ryple_demo_user');
     if (!auth.currentUser && !demoUser) {
       navigate('/login');
     }

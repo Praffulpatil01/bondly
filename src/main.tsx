@@ -16,6 +16,11 @@ import { PermanentChatPage } from './features/chat/pages/PermanentChatPage';
 import { MyProfilePage } from './features/profile/pages/MyProfilePage';
 import { SettingsPage } from './features/settings/pages/SettingsPage';
 import { NotificationsPage } from './features/notifications/pages/NotificationsPage';
+import { BlockedUsersPage } from './features/settings/pages/BlockedUsersPage';
+import { PrivacyPage } from './features/settings/pages/PrivacyPage';
+import { SafetyCenterPage } from './features/settings/pages/SafetyCenterPage';
+import { GuidelinesPage } from './features/settings/pages/GuidelinesPage';
+import { HelpSupportPage } from './features/settings/pages/HelpSupportPage';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { GuestRoute } from './components/auth/GuestRoute';
@@ -41,6 +46,11 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <Route path="/chat/permanent/:chatId" element={<ProtectedRoute><PermanentChatPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/settings/blocked-users" element={<ProtectedRoute><BlockedUsersPage /></ProtectedRoute>} />
+            <Route path="/settings/privacy" element={<ProtectedRoute><PrivacyPage /></ProtectedRoute>} />
+            <Route path="/settings/safety" element={<ProtectedRoute><SafetyCenterPage /></ProtectedRoute>} />
+            <Route path="/settings/guidelines" element={<ProtectedRoute><GuidelinesPage /></ProtectedRoute>} />
+            <Route path="/settings/help" element={<ProtectedRoute><HelpSupportPage /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           </Routes>
           <Toaster position="top-center" />

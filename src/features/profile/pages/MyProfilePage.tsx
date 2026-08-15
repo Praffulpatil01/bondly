@@ -7,6 +7,32 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { Loader } from '@/components/ui/Loader';
 import { EditProfileModal } from '../components/EditProfileModal';
 
+// Stitch avatar sprite — 4 columns × 2 rows grid
+const AVATARS_IMG =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuA3Do5bvSlH2WSw862TZzWccUJJESenQB2FqqizzpLlapyJIBTO4CCdBULetW32XZJQWSmHD93MAyg6DCIM4Ns5Jx7_2J6uN27rpL7LPMp3RRHpLokHNDErIgRDwWoHhJJv2E_kr-LdHmxQmg-s-DoFiHtG7920SgoLTw16t0xwxZTAdM130eMd7fXzu0Nz0nfsscetnAZKOZ6nQWt5MHzBsqVbyTUFL2cGePLe7ECETINAxUT7yrPdKg";
+
+const AvatarCell = ({
+  col, row, className = "",
+}: { col: number; row: number; className?: string }) => (
+  <div
+    className={`relative overflow-hidden w-full h-full rounded-full ${className}`}
+  >
+    <img
+      src={AVATARS_IMG}
+      alt="Avatar"
+      style={{
+        position: "absolute",
+        width: "400%",
+        height: "200%",
+        maxWidth: "none",
+        left: `${col * -100}%`,
+        top: `${row * -100}%`,
+        objectFit: "cover",
+      }}
+    />
+  </div>
+);
+
 export const MyProfilePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -17,18 +43,27 @@ export const MyProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) {
-        // Mock data from Stitch
+        const demoUserRaw = localStorage.getItem('Ryple_demo_user');
+        let localProfile: Partial<UserProfile> = {};
+        if (demoUserRaw) {
+          try {
+            localProfile = JSON.parse(demoUserRaw);
+          } catch (e) {
+            console.error("Failed to parse local profile", e);
+          }
+        }
         setProfile({
-          uid: 'me',
-          email: 'alex@bondly.com',
-          nickname: 'Alex Rivera',
-          bio: 'Creating meaningful connections through small acts of kindness. ✨ Tech explorer & coffee enthusiast.',
-          photoURL: 'https://lh3.googleusercontent.com/aida-public/AB6AXuADCpHtBWLJs7ROScL63A6mBoyByVs_oQ38Eax2zUYgO4Jr3YTcLnJRK40ZI7Mk5xanODeK9WR7KYMqU4oJmPxWh9uMT41qsORbReazCCi02UFh633tH0wiPVT1972YJuWZ_ZlpzDZGxa-lSPwB3-by4f-oacYolHAaMpRF5YjgeN2p1Gb6HGzJhRf1YmsvLi9-ZUqgZX4ClVO2Q-clpb757Tu5tDDvqheznd3kTIixPG0FemqB4AYLVQ',
-          createdAt: new Date('2024-01-01').getTime(),
-          updatedAt: Date.now(),
-          onboardingCompleted: true,
-          friendsCount: 124,
-          chatsCount: 8200,
+          uid: localProfile.uid || 'me',
+          email: localProfile.email || 'alex@Ryple.com',
+          nickname: localProfile.nickname || 'Alex Rivera',
+          bio: localProfile.bio !== undefined ? localProfile.bio : 'Creating meaningful connections through small acts of kindness. ✨ Tech explorer & coffee enthusiast.',
+          photoURL: localProfile.photoURL || '',
+          createdAt: localProfile.createdAt || new Date('2024-01-01').getTime(),
+          updatedAt: localProfile.updatedAt || Date.now(),
+          onboardingCompleted: localProfile.onboardingCompleted !== undefined ? localProfile.onboardingCompleted : true,
+          friendsCount: localProfile.friendsCount !== undefined ? localProfile.friendsCount : 124,
+          chatsCount: localProfile.chatsCount !== undefined ? localProfile.chatsCount : 8200,
+          interests: localProfile.interests || [],
         } as UserProfile);
         setLoading(false);
         return;
@@ -65,7 +100,38 @@ export const MyProfilePage = () => {
     fetchProfile();
   }, [user]);
 
+  // Selected avatar index from profile.photoURL or default to col0,row0
+  const avatarInfo = (() => {
+    if (!profile?.photoURL) return { col: 0, row: 0 };
+    const match = profile.photoURL.match(/avatar_(\d)_(\d)/);
+    if (match) return { col: parseInt(match[1]), row: parseInt(match[2]) };
+    return { col: 0, row: 0 };
+  })();
+
+  const isCustomImage = profile?.photoURL && 
+    !profile.photoURL.includes('avatar_') && 
+    !profile.photoURL.includes('aida-public');
+
   if (loading || !profile) return <Loader fullScreen size={48} />;
+
+  // Safe Date formatter helper for Joined date
+  const getJoinedDate = () => {
+    if (!profile?.createdAt) return "Aug '26";
+    let date: Date;
+    if (typeof profile.createdAt === 'number') {
+      date = new Date(profile.createdAt);
+    } else if (profile.createdAt && typeof (profile.createdAt as any).toDate === 'function') {
+      date = (profile.createdAt as any).toDate();
+    } else if (profile.createdAt && (profile.createdAt as any).seconds) {
+      date = new Date((profile.createdAt as any).seconds * 1000);
+    } else {
+      date = new Date(profile.createdAt);
+    }
+    if (isNaN(date.getTime())) return "Aug '26";
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const year = date.getFullYear().toString().slice(2);
+    return `${month} '${year}`;
+  };
 
   return (
     <div className="bg-[#fcf8ff] text-[#1b1b24] min-h-screen pb-32 font-[Inter] antialiased">
@@ -78,7 +144,7 @@ export const MyProfilePage = () => {
         >
           arrow_back
         </button>
-        <span className="text-2xl font-bold font-[Outfit] text-[#5442dd]">Bondly</span>
+        <span className="text-2xl font-bold font-[Outfit] text-[#5442dd]">Ryple</span>
         <button 
           onClick={() => navigate('/settings')}
           className="material-symbols-outlined text-[#5442dd] p-2 hover:opacity-80 transition-opacity active:scale-95 duration-200"
@@ -93,12 +159,16 @@ export const MyProfilePage = () => {
         {/* Profile Header */}
         <section className="flex flex-col items-center text-center space-y-4">
           <div className="relative group cursor-pointer">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-[#f0ecf9]">
-              <img 
-                className="w-full h-full object-cover" 
-                src={profile.photoURL || 'https://lh3.googleusercontent.com/aida-public/AB6AXuADCpHtBWLJs7ROScL63A6mBoyByVs_oQ38Eax2zUYgO4Jr3YTcLnJRK40ZI7Mk5xanODeK9WR7KYMqU4oJmPxWh9uMT41qsORbReazCCi02UFh633tH0wiPVT1972YJuWZ_ZlpzDZGxa-lSPwB3-by4f-oacYolHAaMpRF5YjgeN2p1Gb6HGzJhRf1YmsvLi9-ZUqgZX4ClVO2Q-clpb757Tu5tDDvqheznd3kTIixPG0FemqB4AYLVQ'} 
-                alt="Profile" 
-              />
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-[#e4dfff]">
+              {isCustomImage ? (
+                <img 
+                  className="w-full h-full object-cover" 
+                  src={profile.photoURL} 
+                  alt="Profile" 
+                />
+              ) : (
+                <AvatarCell col={avatarInfo.col} row={avatarInfo.row} />
+              )}
             </div>
             <button 
               onClick={() => setIsEditModalOpen(true)}
@@ -125,7 +195,7 @@ export const MyProfilePage = () => {
         {/* Stats Grid */}
         <section className="grid grid-cols-3 gap-4 bg-white p-4 rounded-[2rem] shadow-[0_4px_20px_rgba(109,94,247,0.05)] border border-[#c8c4d7]/30">
           <div className="flex flex-col items-center justify-center py-2">
-            <span className="font-[Outfit] font-bold text-xl text-[#5442dd]">{profile.friendsCount}</span>
+            <span className="font-[Outfit] font-bold text-xl text-[#5442dd]">{profile.friendsCount ?? 0}</span>
             <span className="text-xs font-semibold text-[#474555]">Friends</span>
           </div>
           <div className="flex flex-col items-center justify-center py-2 border-x border-[#c8c4d7]/30">
@@ -138,7 +208,7 @@ export const MyProfilePage = () => {
           </div>
           <div className="flex flex-col items-center justify-center py-2">
             <span className="font-[Outfit] font-bold text-xl text-[#5442dd]">
-              {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}
+              {getJoinedDate()}
             </span>
             <span className="text-xs font-semibold text-[#474555]">Joined</span>
           </div>
@@ -221,13 +291,13 @@ export const MyProfilePage = () => {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="w-full flex flex-col md:flex-row justify-between items-center px-10 py-12 space-y-4 md:space-y-0 bg-white border-t border-[#c8c4d7]/10 mt-16 mb-20">
-        <span className="font-[Outfit] font-bold text-xl text-[#5442dd]">Bondly</span>
-        <p className="text-xs text-[#474555]">© 2024 Bondly. Stay curious, stay kind.</p>
-        <div className="flex gap-6">
-          <a className="text-[#474555] hover:text-[#5442dd] transition-colors text-xs" href="#">Safety</a>
-          <a className="text-[#474555] hover:text-[#5442dd] transition-colors text-xs" href="#">Privacy</a>
-          <a className="text-[#474555] hover:text-[#5442dd] transition-colors text-xs" href="#">Guidelines</a>
+      <footer className="w-full flex flex-col items-center gap-1 px-6 py-4 bg-white border-t border-[#c8c4d7]/10 mt-6">
+        <span className="font-[Outfit] font-bold text-base text-[#5442dd]">Ryple</span>
+        <p className="text-[11px] text-[#787586]">© 2024 Ryple. Stay curious, stay kind.</p>
+        <div className="flex gap-5">
+          <a className="text-[#787586] hover:text-[#5442dd] transition-colors text-[11px]" href="#">Safety</a>
+          <a className="text-[#787586] hover:text-[#5442dd] transition-colors text-[11px]" href="#">Privacy</a>
+          <a className="text-[#787586] hover:text-[#5442dd] transition-colors text-[11px]" href="#">Guidelines</a>
         </div>
       </footer>
 

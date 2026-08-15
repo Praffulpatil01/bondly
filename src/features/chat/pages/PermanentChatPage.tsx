@@ -10,6 +10,34 @@ import { Loader } from '@/components/ui/Loader';
 import { AnimatePresence, motion } from 'framer-motion';
 import EmojiPicker, { Theme, EmojiStyle } from 'emoji-picker-react';
 
+const AVATARS_IMG =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuA3Do5bvSlH2WSw862TZzWccUJJESenQB2FqqizzpLlapyJIBTO4CCdBULetW32XZJQWSmHD93MAyg6DCIM4Ns5Jx7_2J6uN27rpL7LPMp3RRHpLokHNDErIgRDwWoHhJJv2E_kr-LdHmxQmg-s-DoFiHtG7920SgoLTw16t0xwxZTAdM130eMd7fXzu0Nz0nfsscetnAZKOZ6nQWt5MHzBsqVbyTUFL2cGePLe7ECETINAxUT7yrPdKg";
+
+const parseAvatarCoords = (photoURL?: string) => {
+  if (!photoURL) return null;
+  const match = photoURL.match(/avatar_(\d)_(\d)/);
+  if (match) return { col: parseInt(match[1]), row: parseInt(match[2]) };
+  return null;
+};
+
+const AvatarSprite = ({ col, row }: { col: number; row: number }) => (
+  <div className="relative overflow-hidden w-full h-full rounded-full">
+    <img
+      src={AVATARS_IMG}
+      alt="Avatar"
+      style={{
+        position: "absolute",
+        width: "400%",
+        height: "200%",
+        maxWidth: "none",
+        left: `${col * -100}%`,
+        top: `${row * -100}%`,
+        objectFit: "cover",
+      }}
+    />
+  </div>
+);
+
 export const PermanentChatPage = () => {
   const { chatId } = useParams<{ chatId: string }>(); // Using friendshipId as chatId
   const navigate = useNavigate();
@@ -160,7 +188,14 @@ export const PermanentChatPage = () => {
           
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => friendId && navigate(`/friends/${friendId}`)}>
             <div className="relative">
-              <img src={friendProfile?.photoURL} alt="Avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" />
+              <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/10">
+                {(() => {
+                  const coords = parseAvatarCoords(friendProfile?.photoURL);
+                  if (coords) return <AvatarSprite col={coords.col} row={coords.row} />;
+                  if (friendProfile?.photoURL?.startsWith('http')) return <img src={friendProfile.photoURL} alt="Avatar" className="w-full h-full object-cover" />;
+                  return <AvatarSprite col={0} row={0} />;
+                })()}
+              </div>
               {friendProfile?.onlineStatus === 'online' && (
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface rounded-full"></div>
               )}

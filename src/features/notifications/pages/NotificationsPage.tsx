@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, CheckCircle2, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationService } from '../services/notification.service';
 import { useNotificationStore } from '../store/notification.store';
@@ -102,30 +101,30 @@ export const NotificationsPage = () => {
   return (
     <div className="min-h-screen bg-background text-on-surface font-body-md pb-32">
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full z-50 h-16 flex items-center justify-between px-5 md:px-10 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30">
+      <header className="fixed top-0 left-0 w-full z-50 h-16 flex items-center justify-between px-5 bg-white/80 backdrop-blur-xl border-b border-[#c8c4d7]/20 shadow-[0_2px_20px_rgba(84,66,221,0.06)] transition-all duration-300">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate(-1)}
-            className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-variant/50 transition-colors -ml-2"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#e4dfff]/50 text-[#5442dd] active:scale-90 transition-all -ml-2"
           >
-            <ArrowLeft size={24} />
+            <span className="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
           </button>
-          <span className="text-xl font-bold font-['Outfit']">Alerts</span>
+          <span className="text-xl font-bold font-['Outfit'] text-[#5442dd]">Alerts</span>
         </div>
         <div className="flex items-center gap-2">
           <button 
             onClick={handleMarkAllRead}
             title="Mark All Read"
-            className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#e4dfff]/50 text-[#5442dd] active:scale-90 transition-all"
           >
-            <CheckCircle2 size={20} />
+            <span className="material-symbols-outlined text-[22px]">done_all</span>
           </button>
           <button 
             onClick={handleDeleteAllRead}
             title="Delete Read"
-            className="w-10 h-10 flex items-center justify-center rounded-full text-error hover:bg-error-container transition-colors"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-50 text-red-500 active:scale-90 transition-all"
           >
-            <Trash2 size={20} />
+            <span className="material-symbols-outlined text-[22px]">delete_sweep</span>
           </button>
         </div>
       </header>

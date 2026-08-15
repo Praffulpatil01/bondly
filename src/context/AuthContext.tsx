@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const logout = async () => {
-    localStorage.removeItem('bondly_demo_user');
+    localStorage.removeItem('Ryple_demo_user');
     await AuthService.logout();
   };
 

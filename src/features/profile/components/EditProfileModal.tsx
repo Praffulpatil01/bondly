@@ -9,6 +9,36 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 
+const AVATARS_IMG =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuA3Do5bvSlH2WSw862TZzWccUJJESenQB2FqqizzpLlapyJIBTO4CCdBULetW32XZJQWSmHD93MAyg6DCIM4Ns5Jx7_2J6uN27rpL7LPMp3RRHpLokHNDErIgRDwWoHhJJv2E_kr-LdHmxQmg-s-DoFiHtG7920SgoLTw16t0xwxZTAdM130eMd7fXzu0Nz0nfsscetnAZKOZ6nQWt5MHzBsqVbyTUFL2cGePLe7ECETINAxUT7yrPdKg";
+
+const AvatarCell = ({
+  col, row, className = "",
+}: { col: number; row: number; className?: string }) => (
+  <div
+    className={`relative overflow-hidden w-full h-full rounded-full ${className}`}
+  >
+    <img
+      src={AVATARS_IMG}
+      alt="Avatar"
+      style={{
+        position: "absolute",
+        width: "400%",
+        height: "200%",
+        maxWidth: "none",
+        left: `${col * -100}%`,
+        top: `${row * -100}%`,
+        objectFit: "cover",
+      }}
+    />
+  </div>
+);
+
+const AVATAR_OPTIONS = [
+  { col: 0, row: 0 }, { col: 1, row: 0 }, { col: 2, row: 0 }, { col: 3, row: 0 },
+  { col: 0, row: 1 }, { col: 1, row: 1 }, { col: 2, row: 1 }, { col: 3, row: 1 },
+];
+
 const INTERESTS = [
   'Music', 'Gaming', 'Movies', 'Anime', 'Sports',
   'Technology', 'Travel', 'Food', 'Photography',
@@ -23,9 +53,16 @@ interface EditProfileModalProps {
 }
 
 export const EditProfileModal = ({ isOpen, onClose, profile, onSave }: EditProfileModalProps) => {
+  const parseAvatar = (url: string) => {
+    if (!url) return { col: 0, row: 0 };
+    const match = url.match(/avatar_(\d)_(\d)/);
+    if (match) return { col: parseInt(match[1]), row: parseInt(match[2]) };
+    return { col: 0, row: 0 };
+  };
+
   const [nickname, setNickname] = useState(profile.nickname || '');
   const [bio, setBio] = useState(profile.bio || '');
-  const [photoURL, setPhotoURL] = useState(profile.photoURL || '');
+  const [selectedAvatar, setSelectedAvatar] = useState<{ col: number; row: number }>({ col: 0, row: 0 });
   const [selectedInterests, setSelectedInterests] = useState<string[]>(profile.interests || []);
   const [searchInterest, setSearchInterest] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +71,7 @@ export const EditProfileModal = ({ isOpen, onClose, profile, onSave }: EditProfi
     if (isOpen) {
       setNickname(profile.nickname || '');
       setBio(profile.bio || '');
-      setPhotoURL(profile.photoURL || '');
+      setSelectedAvatar(parseAvatar(profile.photoURL || ''));
       setSelectedInterests(profile.interests || []);
       setSearchInterest('');
     }
@@ -58,13 +95,34 @@ export const EditProfileModal = ({ isOpen, onClose, profile, onSave }: EditProfi
       const updates: Partial<UserProfile> = {
         nickname,
         bio,
-        photoURL,
+        photoURL: `avatar_${selectedAvatar.col}_${selectedAvatar.row}`,
         interests: selectedInterests,
         updatedAt: Date.now(),
       };
 
-      const docRef = doc(collections.profiles, profile.uid);
-      await setDocument(docRef, updates);
+      if (profile.uid === 'me' || profile.uid === 'demo-user-123' || !profile.uid) {
+        const demoUser = localStorage.getItem('Ryple_demo_user');
+        const parsed = demoUser ? JSON.parse(demoUser) : {};
+        const avatarStr = `avatar_${selectedAvatar.col}_${selectedAvatar.row}`;
+        localStorage.setItem('Ryple_demo_user', JSON.stringify({
+          ...parsed,
+          uid: profile.uid || 'me',
+          nickname,
+          bio,
+          photoURL: avatarStr,
+          interests: selectedInterests,
+        }));
+        onSave(updates);
+        toast.success('Profile updated successfully!');
+        onClose();
+        return;
+      }
+
+      const docRefProfile = doc(collections.profiles, profile.uid);
+      const docRefUser = doc(collections.users, profile.uid);
+      
+      await setDocument(docRefProfile, updates, { merge: true });
+      await setDocument(docRefUser, updates, { merge: true });
       
       onSave(updates);
       toast.success('Profile updated successfully!');
@@ -102,23 +160,32 @@ export const EditProfileModal = ({ isOpen, onClose, profile, onSave }: EditProfi
             <form id="edit-profile-form" onSubmit={handleSubmit} className="space-y-6">
               
               {/* Photo URL */}
-              <div className="space-y-2">
-                <Label htmlFor="photoURL">Avatar URL</Label>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-surface-container flex items-center justify-center border border-outline-variant/30">
-                    {photoURL ? (
-                      <img src={photoURL} alt="Avatar Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-lg font-bold text-primary">{nickname.charAt(0)}</span>
-                    )}
-                  </div>
-                  <Input 
-                    id="photoURL" 
-                    placeholder="https://..." 
-                    value={photoURL} 
-                    onChange={(e) => setPhotoURL(e.target.value)}
-                    className="flex-grow"
-                  />
+              {/* Select Avatar */}
+              <div className="space-y-3">
+                <Label>Choose Avatar</Label>
+                <div className="grid grid-cols-4 gap-3 bg-surface-container/30 p-4 rounded-2xl border border-outline-variant/20">
+                  {AVATAR_OPTIONS.map((av, idx) => {
+                    const isSelected = selectedAvatar.col === av.col && selectedAvatar.row === av.row;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedAvatar(av)}
+                        className={`relative rounded-full aspect-square overflow-hidden border-4 transition-all hover:scale-105 active:scale-95 ${
+                          isSelected
+                            ? "border-[#5442dd] shadow-[0_4px_16px_rgba(84,66,221,0.3)]"
+                            : "border-transparent hover:border-outline-variant"
+                        }`}
+                      >
+                        <AvatarCell col={av.col} row={av.row} />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-[#5442dd]/20 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-white text-[20px] drop-shadow-md">check</span>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

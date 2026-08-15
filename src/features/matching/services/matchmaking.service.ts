@@ -20,11 +20,11 @@ const STATUS_MESSAGES = [
 ];
 
 const FUN_FACTS = [
-  'Over 12,000 friendships started on Bondly.',
+  'Over 12,000 friendships started on Ryple.',
   "You'll stay anonymous until both users decide otherwise.",
   'Kind conversations create lasting friendships.',
-  'Bondly connects people from over 50 countries.',
-  'The average Bondly conversation lasts 15 minutes.',
+  'Ryple connects people from over 50 countries.',
+  'The average Ryple conversation lasts 15 minutes.',
 ];
 
 export const MatchmakingService = {
@@ -71,7 +71,7 @@ export const MatchmakingService = {
                   userId: data.matchedWith,
                   nickname: 'Anonymous', 
                   avatarUrl: '',
-                  sharedInterests: ['Bondly'],
+                  sharedInterests: ['Ryple'],
                   chatId: data.chatId,
                 }
               });

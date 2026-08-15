@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const demoUser = localStorage.getItem('bondly_demo_user');
+  const demoUser = localStorage.getItem('Ryple_demo_user');
 
   if (loading) {
     return (

@@ -6,6 +6,34 @@ import { FriendsService, FriendData } from '../services/friends.service';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Loader } from '@/components/ui/Loader';
 
+const AVATARS_IMG =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuA3Do5bvSlH2WSw862TZzWccUJJESenQB2FqqizzpLlapyJIBTO4CCdBULetW32XZJQWSmHD93MAyg6DCIM4Ns5Jx7_2J6uN27rpL7LPMp3RRHpLokHNDErIgRDwWoHhJJv2E_kr-LdHmxQmg-s-DoFiHtG7920SgoLTw16t0xwxZTAdM130eMd7fXzu0Nz0nfsscetnAZKOZ6nQWt5MHzBsqVbyTUFL2cGePLe7ECETINAxUT7yrPdKg";
+
+const parseAvatarCoords = (photoURL?: string) => {
+  if (!photoURL) return null;
+  const match = photoURL.match(/avatar_(\d)_(\d)/);
+  if (match) return { col: parseInt(match[1]), row: parseInt(match[2]) };
+  return null;
+};
+
+const AvatarSprite = ({ col, row }: { col: number; row: number }) => (
+  <div className="relative overflow-hidden w-full h-full">
+    <img
+      src={AVATARS_IMG}
+      alt="Avatar"
+      style={{
+        position: "absolute",
+        width: "400%",
+        height: "200%",
+        maxWidth: "none",
+        left: `${col * -100}%`,
+        top: `${row * -100}%`,
+        objectFit: "cover",
+      }}
+    />
+  </div>
+);
+
 export const FriendProfilePage = () => {
   const { friendId } = useParams<{ friendId: string }>();
   const navigate = useNavigate();
@@ -88,7 +116,7 @@ export const FriendProfilePage = () => {
         <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-variant/50 transition-colors">
           <ArrowLeft size={20} />
         </button>
-        <span className="text-xl font-bold font-['Outfit'] text-primary">Bondly</span>
+        <span className="text-xl font-bold font-['Outfit'] text-primary">Ryple</span>
         <button className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-variant/50 transition-colors">
           <MoreVertical size={20} />
         </button>
@@ -100,13 +128,12 @@ export const FriendProfilePage = () => {
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
             <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full border-[4px] border-surface bg-surface-container overflow-hidden z-10">
-              {profile.photoURL ? (
-                <img src={profile.photoURL} alt={profile.nickname} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-primary text-5xl font-bold bg-primary/10 font-['Outfit']">
-                  {profile.nickname.charAt(0).toUpperCase()}
-                </div>
-              )}
+              {(() => {
+                const coords = parseAvatarCoords(profile.photoURL);
+                if (coords) return <AvatarSprite col={coords.col} row={coords.row} />;
+                if (profile.photoURL?.startsWith('http')) return <img src={profile.photoURL} alt={profile.nickname} className="w-full h-full object-cover" />;
+                return <AvatarSprite col={0} row={0} />;
+              })()}
             </div>
             {/* Status Indicator */}
             {profile.onlineStatus === 'online' && (

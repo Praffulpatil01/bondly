@@ -169,7 +169,7 @@ export const FriendRequestModal: React.FC<FriendRequestModalProps> = ({
                     Congratulations! 🎉
                   </h2>
                   <p className="text-sm text-on-surface-variant mb-8 max-w-[260px]">
-                    You both accepted! Your identities have been revealed and you are now friends on Bondly.
+                    You both accepted! Your identities have been revealed and you are now friends on Ryple.
                   </p>
                   <Button onClick={onContinueChatting} className="w-full h-12 rounded-full font-semibold shadow-md">
                     Continue Chatting

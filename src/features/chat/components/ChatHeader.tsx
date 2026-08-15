@@ -36,7 +36,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             <img 
               className="w-[120%] h-[120%] object-cover opacity-90"
               alt="Anonymous" 
-              src="https://api.dicebear.com/7.x/bottts/svg?seed=bondly-robot&backgroundColor=f5f3ff&colors=6d5ef7" 
+              src="https://api.dicebear.com/7.x/bottts/svg?seed=Ryple-robot&backgroundColor=f5f3ff&colors=6d5ef7" 
             />
           </div>
           <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface rounded-full"></div>

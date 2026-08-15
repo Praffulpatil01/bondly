@@ -73,11 +73,20 @@ export const SettingsPage = () => {
     
     const fetchProfile = async () => {
       if (!user) {
+        const demoUserRaw = localStorage.getItem('Ryple_demo_user');
+        let localProfile: Partial<UserProfile> = {};
+        if (demoUserRaw) {
+          try {
+            localProfile = JSON.parse(demoUserRaw);
+          } catch (e) {
+            console.error("Failed to parse local profile", e);
+          }
+        }
         setProfile({
-          uid: 'me',
-          email: 'demo@bondly.com',
-          nickname: 'Praful',
-          photoURL: '',
+          uid: localProfile.uid || 'me',
+          email: localProfile.email || 'demo@Ryple.com',
+          nickname: localProfile.nickname || 'Praful',
+          photoURL: localProfile.photoURL || '',
         } as UserProfile);
         return;
       }
@@ -117,10 +126,13 @@ export const SettingsPage = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      // Clear demo session
+      localStorage.removeItem('Ryple_demo_user');
       localStorage.removeItem('onboardingCompleted');
       localStorage.removeItem('match_history');
-      navigate('/login');
+      // Sign out Firebase user (no-op if not signed in)
+      try { await signOut(auth); } catch (_) {}
+      navigate('/');
     } catch (e) {
       console.error('Logout error', e);
     }
@@ -160,7 +172,7 @@ export const SettingsPage = () => {
             </div>
             <div>
               <h2 className="text-lg font-bold font-['Outfit'] text-[#1b1b24] group-hover:text-[#5442dd] transition-colors">{profile?.nickname || 'Loading...'}</h2>
-              <p className="text-sm font-medium text-[#787586]">{profile?.email || 'email@example.com'}</p>
+              <p className="text-sm font-medium text-[#787586]">{profile?.email || user?.email || 'demo@Ryple.com'}</p>
             </div>
           </div>
           <div className="w-8 h-8 rounded-full bg-[#f6f2ff] flex items-center justify-center text-[#5442dd] opacity-0 group-hover:opacity-100 transition-opacity">
@@ -205,7 +217,7 @@ export const SettingsPage = () => {
               </button>
               
               {/* Privacy */}
-              <button className="w-full flex items-center justify-between p-4 hover:bg-[#f6f2ff]/60 transition-colors text-left group">
+              <button onClick={() => navigate('/settings/privacy')} className="w-full flex items-center justify-between p-4 hover:bg-[#f6f2ff]/60 transition-colors text-left group">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:scale-105 transition-transform">
                     <Lock size={20} />
@@ -223,7 +235,7 @@ export const SettingsPage = () => {
           <div className={`space-y-3 transition-all duration-700 ${connReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             <h3 className="text-xs font-semibold text-[#5442dd] uppercase tracking-wider px-1">Connections</h3>
             <div className="bg-white rounded-2xl overflow-hidden border border-[#c7c4d2]/20 shadow-[0_4px_20px_rgba(84,66,221,0.04)]">
-              <button className="w-full flex items-center justify-between p-4 hover:bg-[#f6f2ff]/60 transition-colors text-left group">
+              <button onClick={() => navigate('/settings/blocked-users')} className="w-full flex items-center justify-between p-4 hover:bg-[#f6f2ff]/60 transition-colors text-left group">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
                     <Ban size={20} />
@@ -243,7 +255,7 @@ export const SettingsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
               {/* Safety card */}
-              <div className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex flex-col items-start space-y-3 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+              <div onClick={() => navigate('/settings/safety')} className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex flex-col items-start space-y-3 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-12 h-12 rounded-xl bg-[#e4dfff]/60 text-[#5442dd] flex items-center justify-center shadow-sm group-hover:bg-[#5442dd] group-hover:text-white transition-colors duration-300">
                   <ShieldAlert size={24} />
                 </div>
@@ -252,7 +264,7 @@ export const SettingsPage = () => {
               </div>
               
               {/* Guidelines card */}
-              <div className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex flex-col items-start space-y-3 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+              <div onClick={() => navigate('/settings/guidelines')} className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex flex-col items-start space-y-3 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shadow-sm group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
                   <Gavel size={24} />
                 </div>
@@ -261,7 +273,7 @@ export const SettingsPage = () => {
               </div>
               
               {/* Support */}
-              <div className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex flex-col items-start space-y-3 md:col-span-2 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+              <div onClick={() => navigate('/settings/help')} className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex flex-col items-start space-y-3 md:col-span-2 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shadow-sm group-hover:bg-green-500 group-hover:text-white transition-colors duration-300">

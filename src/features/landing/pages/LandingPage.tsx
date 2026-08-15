@@ -126,27 +126,35 @@ export const LandingPage = () => {
   return (
     <div className="bg-[#fcf8ff] text-[#1b1b24] antialiased min-h-screen flex flex-col relative overflow-x-hidden">
 
-      {/* ── Scroll progress bar ── */}
-      <div
-        className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[#5442dd] to-[#c5c0ff] z-[9999] transition-all duration-100"
-        style={{ width: `${scrollPct}%` }}
-      />
-
       {/* ── Header ── */}
-      <header className={`fixed top-0 w-full z-50 flex items-center justify-between px-5 max-w-7xl mx-auto inset-x-0 transition-all duration-300 ${
+      <header className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ${
         scrolled
           ? "py-3 bg-white/90 backdrop-blur-xl border-b border-[#c7c4d2]/30 shadow-[0_2px_20px_rgba(84,66,221,0.08)]"
           : "py-4 bg-transparent"
       }`}>
-        <span className="font-[Outfit] font-bold text-2xl text-[#5442dd]">Bondly</span>
-        <div className="flex items-center gap-3">
-          <button className="hidden sm:block font-[Inter] font-medium text-sm text-[#5442dd] hover:opacity-70 transition-opacity">
-            How it works
-          </button>
-          <button className="font-[Inter] font-semibold text-sm bg-[#5442dd] text-white px-6 py-2.5 rounded-full hover:scale-105 hover:shadow-[0_8px_30px_rgba(84,66,221,0.4)] active:scale-95 transition-all duration-200">
-            Log In
-          </button>
+        <div className="max-w-7xl mx-auto px-5 w-full flex items-center justify-between">
+          <span className="font-[Outfit] font-bold text-2xl text-[#5442dd]">Ryple</span>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={scrollToHowItWorks}
+              className="hidden sm:block font-[Inter] font-medium text-sm text-[#5442dd] hover:opacity-70 transition-opacity"
+            >
+              How it works
+            </button>
+            <button 
+              onClick={() => navigate("/login")}
+              className="font-[Inter] font-semibold text-sm bg-[#5442dd] text-white px-6 py-2.5 rounded-full hover:scale-105 hover:shadow-[0_8px_30px_rgba(84,66,221,0.4)] active:scale-95 transition-all duration-200"
+            >
+              Log In
+            </button>
+          </div>
         </div>
+
+        {/* ── Scroll progress bar (moves with header bottom) ── */}
+        <div
+          className="absolute bottom-0 left-0 h-[3px] bg-gradient-to-r from-[#5442dd] to-[#c5c0ff] transition-all duration-100"
+          style={{ width: `${scrollPct}%` }}
+        />
       </header>
 
       <main className="flex-grow pt-[72px]">
@@ -582,10 +590,31 @@ export const LandingPage = () => {
         </section>
       </main>
 
+      {/* ── Giant Brand Wordmark ── */}
+      <div className="bg-white w-full overflow-hidden select-none border-t border-[#c7c4d2]/10 pt-16 pb-8">
+        <div
+          className="font-[Outfit] font-bold text-center w-full block"
+          style={{
+            fontSize: 'clamp(72px, 20vw, 300px)',
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+            background: 'linear-gradient(135deg, #5442dd 0%, #8b6ef5 50%, #c084fc 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Ryple
+        </div>
+        <p className="text-center font-[Inter] text-[#a09eb8] text-sm mt-6 mb-2 tracking-widest uppercase">
+          Start a ripple. Make a real friend.
+        </p>
+      </div>
+
       {/* ── Footer ── */}
       <footer className="bg-white border-t border-[#c7c4d2]/20">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-5 py-8 w-full max-w-7xl mx-auto">
-          <div className="font-[Outfit] font-bold text-[20px] text-[#5442dd]">Bondly</div>
+          <div className="font-[Outfit] font-bold text-[20px] text-[#5442dd]">Ryple</div>
           <nav className="flex flex-wrap justify-center gap-6">
             {["Features", "Privacy", "Terms", "Safety", "Contact"].map(link => (
               <a key={link} className="font-[Inter] text-[14px] text-[#474555] hover:text-[#5442dd] transition-colors cursor-pointer" href="#">
@@ -593,7 +622,7 @@ export const LandingPage = () => {
               </a>
             ))}
           </nav>
-          <div className="font-[Inter] text-[13px] text-[#787586]">© 2024 Bondly AI. All rights reserved.</div>
+          <div className="font-[Inter] text-[13px] text-[#787586]">© 2024 Ryple. All rights reserved.</div>
         </div>
       </footer>
     </div>

@@ -12,7 +12,7 @@ interface GuestRouteProps {
  */
 export const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
-  const demoUser = localStorage.getItem('bondly_demo_user');
+  const demoUser = localStorage.getItem('Ryple_demo_user');
 
   if (loading) {
     return (

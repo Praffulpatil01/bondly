@@ -1,6 +1,6 @@
-// Bondly App Configuration
+// Ryple App Configuration
 export const APP_CONFIG = {
-  name: 'Bondly',
+  name: 'Ryple',
   version: '0.1.0',
   description: 'A social connection platform for Gen Z',
   defaultLanguage: 'en',

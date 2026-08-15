@@ -73,7 +73,7 @@ export const FriendsListPage = () => {
           <button onClick={() => navigate('/dashboard')} className="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:bg-surface-variant/50 transition-colors">
             <ArrowLeft size={24} />
           </button>
-          <h1 className="text-2xl font-bold font-['Outfit'] text-primary">Bondly</h1>
+          <h1 className="text-2xl font-bold font-['Outfit'] text-primary">Ryple</h1>
         </div>
         <button onClick={() => navigate('/settings')} className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors">
           <Settings size={24} />

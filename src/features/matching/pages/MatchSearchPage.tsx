@@ -26,7 +26,7 @@ export const MatchSearchPage = () => {
   React.useEffect(() => {
     // Ensure user is authenticated
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      const demoUser = localStorage.getItem('bondly_demo_user');
+      const demoUser = localStorage.getItem('Ryple_demo_user');
       if (!user && !demoUser) {
         navigate('/login');
       }
@@ -88,7 +88,7 @@ export const MatchSearchPage = () => {
         >
           <ArrowLeft size={24} />
         </button>
-        <h1 className="text-2xl font-bold font-['Outfit'] text-primary">Bondly</h1>
+        <h1 className="text-2xl font-bold font-['Outfit'] text-primary">Ryple</h1>
         <button
           className="flex items-center justify-center w-10 h-10 rounded-full text-primary hover:bg-primary/10 transition-colors"
           aria-label="Settings"
@@ -114,7 +114,7 @@ export const MatchSearchPage = () => {
               <div className="w-[300px] h-[300px] bg-white rounded-full shadow-[0_20px_60px_rgba(109,94,247,0.08)] flex items-center justify-center overflow-hidden mb-8">
                 {/* Fallback to DiceBear if exact robot image isn't available */}
                 <img 
-                  src="https://api.dicebear.com/7.x/bottts/svg?seed=bondly-robot&backgroundColor=f5f3ff&colors=6d5ef7" 
+                  src="https://api.dicebear.com/7.x/bottts/svg?seed=Ryple-robot&backgroundColor=f5f3ff&colors=6d5ef7" 
                   alt="Robot searching" 
                   className="w-[80%] h-[80%] object-contain opacity-90"
                 />

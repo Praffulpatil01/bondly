@@ -65,14 +65,14 @@ export const LoginPage = () => {
     try {
       setIsLoading(true);
       try {
-        await AuthService.login('demo@bondly.app', 'password123');
+        await AuthService.login('demo@Ryple.app', 'password123');
       } catch (err: any) {
         console.log('Demo account login failed, attempting signup...', err);
         if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
            console.warn('Firebase API key not configured. Using Local Demo Session mode.');
         } else {
           try {
-            await AuthService.signup('demo@bondly.app', 'password123', 'Demo User');
+            await AuthService.signup('demo@Ryple.app', 'password123', 'Demo User');
           } catch (signupErr) {
              console.warn('Firebase signup error, falling back to local demo user:', signupErr);
           }
@@ -80,9 +80,9 @@ export const LoginPage = () => {
       }
       
       // Store local demo profile so pages accept the dev user even if Firebase fails
-      localStorage.setItem('bondly_demo_user', JSON.stringify({
+      localStorage.setItem('Ryple_demo_user', JSON.stringify({
         uid: 'demo-user-123',
-        email: 'demo@bondly.app',
+        email: 'demo@Ryple.app',
         nickname: 'Alex',
         interests: ['Music', 'Gaming', 'Technology'],
         language: 'English',
@@ -108,7 +108,7 @@ export const LoginPage = () => {
           <Users className="text-white" size={40} />
         </div>
         <h1 className="text-3xl font-bold font-['Outfit'] text-on-surface tracking-tight">
-          Welcome to Bondly
+          Welcome to Ryple
         </h1>
         <p className="text-on-surface-variant mt-1 text-sm">
           Connect, share, and grow together.

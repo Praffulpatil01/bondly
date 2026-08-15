@@ -51,7 +51,7 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Footer info */}
         <footer className="mt-8 text-center space-y-2">
           <p className="text-xs font-medium text-outline">
-            By continuing, you agree to Bondly's{' '}
+            By continuing, you agree to Ryple's{' '}
             <a className="underline hover:text-on-surface transition-colors" href="#">
               Terms of Service
             </a>{' '}
@@ -61,7 +61,7 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
             </a>
           </p>
           <p className="text-xs font-medium text-outline-variant">
-            © 2024 Bondly. Stay curious, stay kind.
+            © 2024 Ryple. Stay curious, stay kind.
           </p>
         </footer>
       </div>

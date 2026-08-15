@@ -1,6 +1,34 @@
 import { motion, useAnimation, PanInfo } from 'framer-motion';
 import { Ban, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import React from 'react';
+
+const AVATARS_IMG =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuA3Do5bvSlH2WSw862TZzWccUJJESenQB2FqqizzpLlapyJIBTO4CCdBULetW32XZJQWSmHD93MAyg6DCIM4Ns5Jx7_2J6uN27rpL7LPMp3RRHpLokHNDErIgRDwWoHhJJv2E_kr-LdHmxQmg-s-DoFiHtG7920SgoLTw16t0xwxZTAdM130eMd7fXzu0Nz0nfsscetnAZKOZ6nQWt5MHzBsqVbyTUFL2cGePLe7ECETINAxUT7yrPdKg";
+
+const parseAvatarCoords = (photoURL: string) => {
+  const match = photoURL?.match(/avatar_(\d)_(\d)/);
+  if (match) return { col: parseInt(match[1]), row: parseInt(match[2]) };
+  return null;
+};
+
+const AvatarSprite = ({ col, row }: { col: number; row: number }) => (
+  <div className="relative overflow-hidden w-full h-full rounded-full">
+    <img
+      src={AVATARS_IMG}
+      alt="Avatar"
+      style={{
+        position: "absolute",
+        width: "400%",
+        height: "200%",
+        maxWidth: "none",
+        left: `${col * -100}%`,
+        top: `${row * -100}%`,
+        objectFit: "cover",
+      }}
+    />
+  </div>
+);
 
 interface FriendCardProps {
   id: string;
@@ -80,13 +108,13 @@ export const FriendCard: React.FC<FriendCardProps> = ({
       >
         <div className="relative">
           <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container-high border-2 border-white flex-shrink-0">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xl">
-                {name.charAt(0)}
-              </div>
-            )}
+            {(() => {
+              const coords = parseAvatarCoords(avatarUrl);
+              if (coords) return <AvatarSprite col={coords.col} row={coords.row} />;
+              if (avatarUrl && !avatarUrl.startsWith('avatar_') && avatarUrl.startsWith('http')) return <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />;
+              // Default to first avatar sprite
+              return <AvatarSprite col={0} row={0} />;
+            })()}
           </div>
           {isOnline && (
             <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>

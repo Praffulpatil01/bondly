@@ -63,7 +63,7 @@ export const SignUpPage = () => {
           Create Account
         </h1>
         <p className="text-on-surface-variant mt-1 text-sm">
-          Join Bondly and start connecting.
+          Join Ryple and start connecting.
         </p>
       </div>
 
