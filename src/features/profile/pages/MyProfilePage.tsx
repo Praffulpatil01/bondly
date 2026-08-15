@@ -42,6 +42,17 @@ export const MyProfilePage = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      let uidToUse = 'me';
+      let emailToUse = 'alex@Ryple.com';
+      let nicknameToUse = 'Alex Rivera';
+      let bioToUse = 'Creating meaningful connections through small acts of kindness. ✨ Tech explorer & coffee enthusiast.';
+      let photoURLToUse = '';
+      let createdAtToUse = Date.now();
+      let onboardingCompletedToUse = true;
+
+      let friendsCount = 0;
+      let chatsCount = 0;
+
       if (!user) {
         const demoUserRaw = localStorage.getItem('Ryple_demo_user');
         let localProfile: Partial<UserProfile> = {};
@@ -52,22 +63,61 @@ export const MyProfilePage = () => {
             console.error("Failed to parse local profile", e);
           }
         }
+        uidToUse = localProfile.uid || 'me';
+        emailToUse = localProfile.email || 'alex@Ryple.com';
+        nicknameToUse = localProfile.nickname || 'Alex Rivera';
+        bioToUse = localProfile.bio !== undefined ? localProfile.bio : bioToUse;
+        photoURLToUse = localProfile.photoURL || '';
+        createdAtToUse = localProfile.createdAt || Date.now();
+        onboardingCompletedToUse = localProfile.onboardingCompleted !== undefined ? localProfile.onboardingCompleted : true;
+      } else {
+        uidToUse = user.uid;
+        emailToUse = user.email || '';
+        nicknameToUse = user.displayName || 'Alex Rivera';
+        photoURLToUse = user.photoURL || '';
+      }
+
+      // Fetch dynamic stats from Firestore
+      try {
+        const { getDocs, query, where, collection } = await import('firebase/firestore');
+        const { db } = await import('@/firebase/firebase');
+        
+        const friendsQuery = query(
+          collection(db, 'friendships'),
+          where('users', 'array-contains', uidToUse),
+          where('status', '==', 'active')
+        );
+        const friendsSnap = await getDocs(friendsQuery);
+        friendsCount = friendsSnap.size;
+
+        const chatsQuery = query(
+          collection(db, 'chats'),
+          where('participants', 'array-contains', uidToUse)
+        );
+        const chatsSnap = await getDocs(chatsQuery);
+        chatsCount = chatsSnap.size;
+      } catch (err) {
+        console.error('Failed to load counts from Firestore:', err);
+      }
+
+      if (!user) {
         setProfile({
-          uid: localProfile.uid || 'me',
-          email: localProfile.email || 'alex@Ryple.com',
-          nickname: localProfile.nickname || 'Alex Rivera',
-          bio: localProfile.bio !== undefined ? localProfile.bio : 'Creating meaningful connections through small acts of kindness. ✨ Tech explorer & coffee enthusiast.',
-          photoURL: localProfile.photoURL || '',
-          createdAt: localProfile.createdAt || new Date('2024-01-01').getTime(),
-          updatedAt: localProfile.updatedAt || Date.now(),
-          onboardingCompleted: localProfile.onboardingCompleted !== undefined ? localProfile.onboardingCompleted : true,
-          friendsCount: localProfile.friendsCount !== undefined ? localProfile.friendsCount : 124,
-          chatsCount: localProfile.chatsCount !== undefined ? localProfile.chatsCount : 8200,
-          interests: localProfile.interests || [],
+          uid: uidToUse,
+          email: emailToUse,
+          nickname: nicknameToUse,
+          bio: bioToUse,
+          photoURL: photoURLToUse,
+          createdAt: createdAtToUse,
+          updatedAt: Date.now(),
+          onboardingCompleted: onboardingCompletedToUse,
+          friendsCount,
+          chatsCount,
+          interests: [],
         } as UserProfile);
         setLoading(false);
         return;
       }
+
       try {
         let docRef = doc(collections.profiles, user.uid);
         let snap = await getDoc(docRef);
@@ -76,19 +126,24 @@ export const MyProfilePage = () => {
           snap = await getDoc(docRef);
         }
         if (snap.exists()) {
-          setProfile(snap.data() as UserProfile);
+          setProfile({
+            ...snap.data(),
+            friendsCount,
+            chatsCount
+          } as UserProfile);
         } else {
           setProfile({
-            uid: user.uid,
-            email: user.email || '',
-            nickname: user.displayName || 'Alex Rivera',
-            photoURL: user.photoURL || 'https://lh3.googleusercontent.com/aida-public/AB6AXuADCpHtBWLJs7ROScL63A6mBoyByVs_oQ38Eax2zUYgO4Jr3YTcLnJRK40ZI7Mk5xanODeK9WR7KYMqU4oJmPxWh9uMT41qsORbReazCCi02UFh633tH0wiPVT1972YJuWZ_ZlpzDZGxa-lSPwB3-by4f-oacYolHAaMpRF5YjgeN2p1Gb6HGzJhRf1YmsvLi9-ZUqgZX4ClVO2Q-clpb757Tu5tDDvqheznd3kTIixPG0FemqB4AYLVQ',
-            bio: 'Creating meaningful connections through small acts of kindness. ✨ Tech explorer & coffee enthusiast.',
-            createdAt: Date.now(),
+            uid: uidToUse,
+            email: emailToUse,
+            nickname: nicknameToUse,
+            photoURL: photoURLToUse,
+            bio: bioToUse,
+            createdAt: createdAtToUse,
             updatedAt: Date.now(),
-            onboardingCompleted: true,
-            friendsCount: 124,
-            chatsCount: 8200,
+            onboardingCompleted: onboardingCompletedToUse,
+            friendsCount,
+            chatsCount,
+            interests: [],
           } as UserProfile);
         }
       } catch (e) {
@@ -229,23 +284,23 @@ export const MyProfilePage = () => {
               <span className="text-xs font-semibold text-[#1b1b24] text-center">Early Adopter</span>
             </div>
             {/* Badge 2 */}
-            <div className="bg-[#f6f2ff] p-4 rounded-2xl flex flex-col items-center gap-2 border border-[#c8c4d7]/20 hover:border-[#5442dd]/30 transition-all hover:scale-105 cursor-pointer">
+            <div className={`p-4 rounded-2xl flex flex-col items-center gap-2 border border-[#c8c4d7]/20 hover:border-[#5442dd]/30 transition-all hover:scale-105 cursor-pointer ${profile.friendsCount && profile.friendsCount > 0 ? 'bg-[#f6f2ff]' : 'bg-[#f6f2ff] opacity-50 grayscale'}`}>
               <div className="w-12 h-12 rounded-full bg-[#e4dfff] flex items-center justify-center">
                 <span className="material-symbols-outlined text-[#c7bfff]" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
               </div>
               <span className="text-xs font-semibold text-[#1b1b24] text-center">Top Liked</span>
             </div>
             {/* Badge 3 */}
-            <div className="bg-[#f6f2ff] p-4 rounded-2xl flex flex-col items-center gap-2 border border-[#c8c4d7]/20 hover:border-[#5442dd]/30 transition-all hover:scale-105 cursor-pointer">
+            <div className={`p-4 rounded-2xl flex flex-col items-center gap-2 border border-[#c8c4d7]/20 hover:border-[#5442dd]/30 transition-all hover:scale-105 cursor-pointer ${profile.chatsCount && profile.chatsCount > 0 ? 'bg-[#f6f2ff]' : 'bg-[#f6f2ff] opacity-50 grayscale'}`}>
               <div className="w-12 h-12 rounded-full bg-[#e4dfff] flex items-center justify-center">
                 <span className="material-symbols-outlined text-[#5442dd]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
               </div>
               <span className="text-xs font-semibold text-[#1b1b24] text-center">Daily Streak</span>
             </div>
             {/* Badge 4 */}
-            <div className="bg-[#f6f2ff] p-4 rounded-2xl flex flex-col items-center gap-2 border border-[#c8c4d7]/20 opacity-50 grayscale hover:scale-105 cursor-pointer transition-all">
+            <div className={`p-4 rounded-2xl flex flex-col items-center gap-2 border border-[#c8c4d7]/20 hover:border-[#5442dd]/30 transition-all hover:scale-105 cursor-pointer ${user?.emailVerified || profile.onboardingCompleted ? 'bg-[#f6f2ff]' : 'bg-[#f6f2ff] opacity-50 grayscale'}`}>
               <div className="w-12 h-12 rounded-full bg-[#e5e0ed] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#787586]">verified_user</span>
+                <span className="material-symbols-outlined text-[#787586]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
               </div>
               <span className="text-xs font-semibold text-[#1b1b24] text-center">Verified</span>
             </div>

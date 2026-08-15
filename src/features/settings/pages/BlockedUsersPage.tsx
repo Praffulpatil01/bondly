@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ArrowLeft, Ban, UserX, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { collection, query, where, getDocs, doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { toast } from 'sonner';
 
@@ -92,9 +92,12 @@ export const BlockedUsersPage = () => {
   const handleUnblock = async (friendshipId: string, name: string) => {
     setUnblocking(friendshipId);
     try {
-      await deleteDoc(doc(db, 'friendships', friendshipId));
+      await updateDoc(doc(db, 'friendships', friendshipId), {
+        status: 'active',
+        blockedBy: null
+      });
       setBlockedUsers(prev => prev.filter(u => u.id !== friendshipId));
-      toast.success(`${name} has been unblocked.`);
+      toast.success(`${name} has been unblocked and restored to your friend list.`);
     } catch (e) {
       toast.error('Failed to unblock user.');
     } finally {

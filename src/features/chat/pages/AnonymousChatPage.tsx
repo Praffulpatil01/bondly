@@ -14,7 +14,7 @@ import { FriendRequestModal } from '../components/FriendRequestModal';
 import { ChatService, type ChatMessage } from '../services/chat.service';
 import { FriendsService } from '@/features/friends/services/friends.service';
 import { auth, db } from '@/config/firebase';
-import { doc, onSnapshot, DocumentData, DocumentSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, DocumentData, DocumentSnapshot, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
 
 export const AnonymousChatPage = () => {
@@ -42,6 +42,12 @@ export const AnonymousChatPage = () => {
     const unsubscribe = onSnapshot(doc(db, 'chats', chatId), (chatDoc: DocumentSnapshot<DocumentData>) => {
       if (chatDoc.exists()) {
         const data = chatDoc.data({ serverTimestamps: 'estimate' });
+        
+        if (data.status === 'ended') {
+          toast.info('The other user has left the chat.');
+          navigate('/dashboard');
+          return;
+        }
         
         let foundOtherId = null;
         if (data.participants && Array.isArray(data.participants)) {
@@ -199,7 +205,17 @@ export const AnonymousChatPage = () => {
     await FriendsService.declineFriendRequest(incomingRequestId);
   };
 
-  const handleLeaveChat = () => {
+  const handleLeaveChat = async () => {
+    if (chatId !== 'mock-chat-123') {
+      try {
+        await updateDoc(doc(db, 'chats', chatId), {
+          status: 'ended',
+          endedBy: myUid
+        });
+      } catch (e) {
+        console.error('Failed to end chat', e);
+      }
+    }
     navigate('/dashboard');
   };
 
@@ -236,7 +252,17 @@ export const AnonymousChatPage = () => {
           timeLeftMs={timeLeftMs}
           onLeaveChat={handleLeaveChat}
           onReport={() => toast.success('Report submitted. We will review this user.')}
-          onBlock={() => {
+          onBlock={async () => {
+            if (chatId !== 'mock-chat-123') {
+              try {
+                await updateDoc(doc(db, 'chats', chatId), {
+                  status: 'ended',
+                  endedBy: myUid
+                });
+              } catch (e) {
+                console.error('Failed to end chat', e);
+              }
+            }
             toast.success('User blocked.');
             navigate('/dashboard');
           }}

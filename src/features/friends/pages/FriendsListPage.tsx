@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Settings, Search, Loader2 } from 'lucide-react';
+import { ArrowLeft, Settings, Search } from 'lucide-react';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { FriendCard } from '../components/FriendCard';
 import { FriendsService, FriendData } from '../services/friends.service';
 import { useAuth } from '@/context/AuthContext';
+import { Loader } from '@/components/ui/Loader';
 
 export const FriendsListPage = () => {
   const navigate = useNavigate();
@@ -59,6 +60,9 @@ export const FriendsListPage = () => {
     return `${Math.floor(hours / 24)}d ago`;
   };
 
+  const onlineCount = friends.filter(f => f.profile.onlineStatus === 'online').length;
+  const allCount = friends.length;
+
   const filteredFriends = friends.filter(f => {
     if (tab === 'online' && f.profile.onlineStatus !== 'online') return false;
     if (searchQuery && !f.profile.nickname.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -99,22 +103,20 @@ export const FriendsListPage = () => {
             onClick={() => setTab('online')}
             className={`flex-1 py-2 text-sm font-semibold transition-all rounded-lg ${tab === 'online' ? 'bg-surface-container-highest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-variant/30'}`}
           >
-            Online
+            Online ({onlineCount})
           </button>
           <button 
             onClick={() => setTab('all')}
             className={`flex-1 py-2 text-sm font-semibold transition-all rounded-lg ${tab === 'all' ? 'bg-surface-container-highest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-variant/30'}`}
           >
-            All
+            All ({allCount})
           </button>
         </div>
 
         {/* List */}
         <div className="space-y-3">
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="animate-spin text-primary" size={32} />
-            </div>
+            <Loader size={32} />
           ) : filteredFriends.length > 0 ? (
             filteredFriends.map(({ friendship, profile }) => (
               <FriendCard 
