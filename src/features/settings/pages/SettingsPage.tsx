@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Moon, Bell, Lock, Ban, ShieldAlert, Gavel, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Moon, Lock, Ban, ShieldAlert, Gavel, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { collections, UserProfile } from '@/firebase/collections';
@@ -159,8 +159,7 @@ export const SettingsPage = () => {
         
         {/* Profile Overview Card — dynamic entry animation */}
         <div 
-          onClick={() => navigate('/profile')}
-          className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex items-center justify-between shadow-[0_4px_20px_rgba(84,66,221,0.06)] hover:shadow-[0_8px_30px_rgba(84,66,221,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="p-5 rounded-2xl bg-white border border-[#c7c4d2]/20 flex items-center justify-between shadow-[0_4px_20px_rgba(84,66,221,0.06)] transition-all duration-300"
         >
           <div className="flex items-center space-x-4">
             <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[#e4dfff] shadow-inner ring-4 ring-[#5442dd]/10">
@@ -171,12 +170,9 @@ export const SettingsPage = () => {
               )}
             </div>
             <div>
-              <h2 className="text-lg font-bold font-['Outfit'] text-[#1b1b24] group-hover:text-[#5442dd] transition-colors">{profile?.nickname || 'Loading...'}</h2>
+              <h2 className="text-lg font-bold font-['Outfit'] text-[#1b1b24]">{profile?.nickname || 'Loading...'}</h2>
               <p className="text-sm font-medium text-[#787586]">{profile?.email || user?.email || 'demo@Ryple.com'}</p>
             </div>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-[#f6f2ff] flex items-center justify-center text-[#5442dd] opacity-0 group-hover:opacity-100 transition-opacity">
-            <ChevronRight size={18} />
           </div>
         </div>
 
@@ -201,20 +197,6 @@ export const SettingsPage = () => {
                   <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-300 ${mounted && isDarkMode ? 'translate-x-6' : 'translate-x-1'}`}></div>
                 </div>
               </div>
-              
-              {/* Notifications */}
-              <button 
-                onClick={() => navigate('/notifications')}
-                className="w-full flex items-center justify-between p-4 hover:bg-[#f6f2ff]/60 transition-colors text-left group"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
-                    <Bell size={20} />
-                  </div>
-                  <span className="text-base font-medium text-[#1b1b24]">Notifications</span>
-                </div>
-                <ChevronRight className="text-[#c7c4d2] group-hover:text-[#5442dd] transition-colors" size={20} />
-              </button>
               
               {/* Privacy */}
               <button onClick={() => navigate('/settings/privacy')} className="w-full flex items-center justify-between p-4 hover:bg-[#f6f2ff]/60 transition-colors text-left group">

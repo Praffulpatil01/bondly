@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Settings, Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { FriendCard } from '../components/FriendCard';
 import { FriendsService, FriendData } from '../services/friends.service';
@@ -79,9 +79,6 @@ export const FriendsListPage = () => {
           </button>
           <h1 className="text-2xl font-bold font-['Outfit'] text-primary">Ryple</h1>
         </div>
-        <button onClick={() => navigate('/settings')} className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors">
-          <Settings size={24} />
-        </button>
       </header>
 
       <main className="pt-24 px-5 max-w-screen-md mx-auto">

@@ -200,12 +200,7 @@ export const MyProfilePage = () => {
           arrow_back
         </button>
         <span className="text-2xl font-bold font-[Outfit] text-[#5442dd]">Ryple</span>
-        <button 
-          onClick={() => navigate('/settings')}
-          className="material-symbols-outlined text-[#5442dd] p-2 hover:opacity-80 transition-opacity active:scale-95 duration-200"
-        >
-          settings
-        </button>
+        <div className="w-10" />
       </nav>
 
       {/* ── Main Content Container ── */}
@@ -318,16 +313,6 @@ export const MyProfilePage = () => {
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-[#474555] group-hover:text-[#5442dd] transition-colors">lock</span>
                 <span className="text-[15px] font-medium text-[#1b1b24]">Privacy Center</span>
-              </div>
-              <span className="material-symbols-outlined text-[#c8c4d7]">chevron_right</span>
-            </button>
-            <button 
-              onClick={() => navigate('/notifications')}
-              className="w-full px-4 py-4 flex justify-between items-center hover:bg-[#f6f2ff]/50 transition-colors text-left group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[#474555] group-hover:text-[#5442dd] transition-colors">notifications</span>
-                <span className="text-[15px] font-medium text-[#1b1b24]">Notifications</span>
               </div>
               <span className="material-symbols-outlined text-[#c8c4d7]">chevron_right</span>
             </button>

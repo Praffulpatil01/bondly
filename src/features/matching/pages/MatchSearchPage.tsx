@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router';
 import {
   ArrowLeft,
-  Settings,
   Search,
   CheckCircle2,
   WifiOff,
@@ -89,12 +88,7 @@ export const MatchSearchPage = () => {
           <ArrowLeft size={24} />
         </button>
         <h1 className="text-2xl font-bold font-['Outfit'] text-primary">Ryple</h1>
-        <button
-          className="flex items-center justify-center w-10 h-10 rounded-full text-primary hover:bg-primary/10 transition-colors"
-          aria-label="Settings"
-        >
-          <Settings size={24} />
-        </button>
+        <div className="w-10" />
       </header>
 
       {/* Main Content */}

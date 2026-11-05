@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Settings, Smile, Send, Check, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Smile, Send, Check, CheckCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PermanentChatService } from '../services/permanent-chat.service';
 import { PermanentMessage } from '@/firebase/collections';
@@ -209,11 +209,6 @@ export const PermanentChatPage = () => {
           </div>
         </div>
         
-        <div className="flex items-center gap-1">
-          <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant/50 transition-colors active:scale-95 duration-200 text-on-surface-variant">
-            <Settings size={20} />
-          </button>
-        </div>
       </header>
 
       {/* Main Chat Canvas */}

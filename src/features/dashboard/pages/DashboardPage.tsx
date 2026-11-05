@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 import {
-  Bell,
-  Settings,
   Sparkles,
   Check,
   X,
@@ -15,7 +13,6 @@ import { collections, UserProfile, FriendRequest } from '@/firebase/collections'
 import { Button } from '@/components/ui/Button';
 import { FriendsService, FriendData } from '@/features/friends/services/friends.service';
 import { Loader } from '@/components/ui/Loader';
-import { NotificationBadge } from '@/features/notifications/components/NotificationBadge';
 import { BottomNav } from '@/components/layout/BottomNav';
 
 const VIBES = [
@@ -123,20 +120,7 @@ export const DashboardPage = () => {
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold font-['Outfit'] text-primary">Ryple</span>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/notifications')}
-            className="relative w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
-          >
-            <Bell size={20} />
-            <NotificationBadge />
-          </button>
-          <button
-            onClick={() => navigate('/settings')}
-            className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/50 transition-colors">
-            <Settings size={20} />
-          </button>
-          {/* <button
+        {/* <button
             onClick={async () => {
               await logout();
               navigate('/login');
@@ -146,7 +130,6 @@ export const DashboardPage = () => {
           >
             <LogOut size={20} />
           </button> */}
-        </div>
       </header>
 
       <main className="pt-24 px-5 md:px-10 max-w-screen-xl mx-auto space-y-10">

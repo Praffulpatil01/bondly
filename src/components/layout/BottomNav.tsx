@@ -1,14 +1,11 @@
 import { NavLink } from 'react-router';
-import { MessageSquare, Users, Bell, User } from 'lucide-react';
-import { NotificationBadge } from '@/features/notifications/components/NotificationBadge';
+import { MessageSquare, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const BottomNav = () => {
   const navItems = [
     { to: '/dashboard', label: 'Home', icon: MessageSquare },
     { to: '/friends', label: 'Friends', icon: Users },
-    { to: '/notifications', label: 'Alerts', icon: Bell },
-    { to: '/profile', label: 'Profile', icon: User },
   ];
 
   return (
@@ -39,7 +36,6 @@ export const BottomNav = () => {
                     )}
                     strokeWidth={isActive ? 2 : 1.5}
                   />
-                  {item.to === '/notifications' && <NotificationBadge />}
                 </div>
                 <span className="text-[11px] font-semibold mt-1 tracking-wide">
                   {item.label}
