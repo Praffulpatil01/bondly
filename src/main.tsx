@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { HashRouter, Routes, Route } from 'react-router';
 import { Toaster } from 'sonner';
 import LandingPage from './features/landing/pages/LandingPage';
 import { LoginPage } from './features/auth/pages/LoginPage';
@@ -30,7 +30,7 @@ import './styles/index.css';
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Routes>
             <Route path="/" element={<GuestRoute><LandingPage /></GuestRoute>} />
@@ -55,7 +55,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           </Routes>
           <Toaster position="top-center" />
         </ThemeProvider>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   </React.StrictMode>
 );
